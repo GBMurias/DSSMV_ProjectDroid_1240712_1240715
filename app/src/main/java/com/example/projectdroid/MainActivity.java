@@ -5,14 +5,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.projectdroid.R;
-
-import service.ServiceTest;
+import temp.ObjCreationTest;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button meuBotao;
+    private Button respectBotton;
     private TextView txtResultado;
 
     @Override
@@ -20,34 +17,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        respectBotton = findViewById(R.id.respectBotton);
 
-        meuBotao = findViewById(R.id.meuBotao);
-        txtResultado = findViewById(R.id.txtResultado);
+        respectBotton.setOnClickListener(v -> {
 
+            ObjCreationTest tester = new ObjCreationTest();
+            tester.createSingleSlotTest();
 
-        meuBotao.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        ServiceTest service = new ServiceTest();
-                        final String dadosJson = service.fazerPedido();
-
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                txtResultado.setText(dadosJson);
-                            }
-                        });
-                    }
-                }).start();
-
-            }
         });
     }
 }
