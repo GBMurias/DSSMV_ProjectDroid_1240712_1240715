@@ -1,6 +1,8 @@
 package temp;
 
 import android.util.Log;
+import android.content.Context;
+import com.example.projectdroid.MainActivity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -8,35 +10,33 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import service.ApiGetInfo;
 
 public class ObjCreationTest {
     private static final String TAG = "RestDbTest";
-    private static final String DB_URL = "https://projectdroiddb-ee07.restdb.io/rest/slots";
-    private static final String API_KEY = "4e7f3d24d5cec54b60c3f5d61dc58f960c1af";
-    public void createAllSlots() {
-        // Teste de conexão com a base dados da API restdb.io
+    public void createAllSlots(Context cxt) {
+        // teste de conexao com a base dados da API restdb.io
         new Thread(() -> {
             HttpURLConnection connection = null;
             try {
                 // criar objeto JSON para o slot e JSONArray para guardar varios slots
                 JSONArray slotsArray = new JSONArray();
-                for (int row = 0; row <= 9; row++) {
-                    for (char colChar = 'A'; colChar <= 'E'; colChar++) {
                         JSONObject slot = new JSONObject();
-                        slot.put("row", row);
-                        slot.put("column", String.valueOf(colChar));
-                        slot.put("is_occupied", false);
-                        slot.put("current", JSONObject.NULL);
+                        slot.put("row", 67);
+                        slot.put("column", "A");
+                        slot.put("current_vin", JSONObject.NULL);
                         slotsArray.put(slot);
-                    }
-                }
+
+
                 // criar pedido http post
-                URL url = new URL(DB_URL);
+                URL url = new URL(
+                        ApiGetInfo.getApiUrl(cxt) + "slots"
+                );
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
 
                 // definir os headers
-                connection.setRequestProperty("x-apikey", API_KEY);
+                connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Accept", "application/json");
 
@@ -59,7 +59,7 @@ public class ObjCreationTest {
                     while ((line = br.readLine()) != null) {
                         response.append(line.trim());
                     }
-                    Log.d(TAG, "100 Slots (0-9, A-J) criados com sucesso! Resposta: " + response.toString());
+                    Log.d(TAG, "50 Slots (0-9, A-F) criados com sucesso! Resposta: " + response.toString());
                 } else {
                     BufferedReader br = new BufferedReader(new InputStreamReader(connection.getErrorStream(), "utf-8"));
                     StringBuilder errorResponse = new StringBuilder();

@@ -5,6 +5,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import temp.ObjCreationTest;
+import android.content.Context;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         respectBotton.setOnClickListener(v -> {
 
             ObjCreationTest tester = new ObjCreationTest();
-            tester.createAllSlots();
+            tester.createAllSlots(this);
 
         });
     }
