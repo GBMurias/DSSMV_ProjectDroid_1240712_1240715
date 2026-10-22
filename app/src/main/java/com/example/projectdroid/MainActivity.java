@@ -1,7 +1,6 @@
 package com.example.projectdroid;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +9,6 @@ import temp.ObjCreationTest;
 public class MainActivity extends AppCompatActivity {
 
     private Button respectBotton;
-    private TextView txtResultado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         respectBotton.setOnClickListener(v -> {
 
             ObjCreationTest tester = new ObjCreationTest();
-            tester.createSingleSlotTest();
+            tester.createAllSlots();
 
         });
     }
