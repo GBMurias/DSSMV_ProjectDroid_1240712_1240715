@@ -30,6 +30,30 @@ public class Vehicle {
         this.status = status;
     }
 
+    public void setVin(String vin) {
+        this.vin = vin;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setParkSlot(String parkSlot) {
+        this.parkSlot = parkSlot;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
     public String getVin() { return vin; }
     public String getMake() { return make; }
     public String getModel() { return model; }
