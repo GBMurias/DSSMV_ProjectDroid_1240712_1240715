@@ -7,9 +7,9 @@ public class VehicleDTO {
 
     private String model;
 
-    private int year;
+    private Integer year;
 
-    public VehicleDTO(String vin, String make, String model, int year) {
+    public VehicleDTO(String vin, String make, String model, Integer year) {
         this.vin = vin;
         this.make = make;
         this.model = model;
@@ -28,12 +28,12 @@ public class VehicleDTO {
         this.model = model;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 
     public String getVin() { return vin; }
     public String getMake() { return make; }
     public String getModel() { return model; }
-    public int getYear() { return year; }
+    public Integer getYear() { return year; }
 }

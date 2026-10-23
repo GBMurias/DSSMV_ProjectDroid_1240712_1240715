@@ -15,7 +15,7 @@ import service.ApiGetInfo;
 public class ObjCreationTest {
     private static final String TAG = "RestDbTest";
     public void createAllSlots(Context cxt) {
-        // teste de conexao com a base dados da API restdb.io
+
         new Thread(() -> {
             HttpURLConnection connection = null;
             try {

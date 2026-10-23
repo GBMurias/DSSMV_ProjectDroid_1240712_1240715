@@ -18,10 +18,18 @@ public class VehicleService {
 
     public boolean registerIntake(Context cxt, VehicleDTO dto) {
         HttpURLConnection connection = null;
+
         try {
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("VIN", dto.getVin());
+            jsonBody.put("Make", dto.getMake());
+            jsonBody.put("Model", dto.getModel());
+            jsonBody.put("Year", dto.getYear());
+
             URL url = new URL(
-                    ApiGetInfo.getApiUrl(cxt) + "slots"
+                    ApiGetInfo.getApiUrl(cxt) + "intakes"
             );
+
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
@@ -30,12 +38,6 @@ public class VehicleService {
             connection.setDoOutput(true);
             connection.setConnectTimeout(8000);
             connection.setReadTimeout(8000);
-
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("vin", dto.getVin());
-            jsonBody.put("make", dto.getMake());
-            jsonBody.put("model", dto.getModel());
-            jsonBody.put("year", dto.getYear());
 
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.toString().getBytes("utf-8");
