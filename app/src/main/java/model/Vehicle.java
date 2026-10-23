@@ -15,10 +15,10 @@ public class Vehicle {
     @SerializedName("Year")
     private int year;
 
-    @SerializedName("ParkSlot")
+    @SerializedName("slot_id")
     private String parkSlot;
 
-    @SerializedName("status")
+    @SerializedName("is_salvageale")
     private boolean status;
 
     public Vehicle(String vin, String make, String model, int year, String parkSlot, boolean status) {
