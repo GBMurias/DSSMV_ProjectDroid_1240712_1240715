@@ -1,5 +1,6 @@
 package com.example.projectdroid;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
         respectBotton.setOnClickListener(v -> {
 
-            ObjCreationTest tester = new ObjCreationTest();
-            tester.createAllSlots(this);
+            Intent intent = new Intent(MainActivity.this, IntakeActivity.class);
+            startActivity(intent);
 
         });
     }
