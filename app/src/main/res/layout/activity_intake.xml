@@ -12,18 +12,23 @@
         android:id="@+id/etInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Escreve o teu nome aqui..."
+        android:layout_marginTop="120dp"
+        android:hint="Insert VIN here..."
         android:inputType="textPersonName"
         android:minHeight="48dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="120dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/aaa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"></Button>
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="180dp"
+        android:text="Confirm VIN"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></Button>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
