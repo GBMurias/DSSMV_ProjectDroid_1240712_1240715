@@ -23,7 +23,7 @@
         android:shadowRadius="5" />
 
     <Button
-        android:id="@+id/mapBotton"
+        android:id="@+id/mapButton"
         android:layout_width="165dp"
         android:layout_height="wrap_content"
         android:backgroundTint="#A0522D"

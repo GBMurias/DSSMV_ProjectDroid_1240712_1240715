@@ -38,5 +38,24 @@ public class MapActivity extends AppCompatActivity {
             }
         }).start();
     }
+    private void updateMapUI(List<SlotDTO> slots) {
+        for (SlotDTO slot : slots) {
+            String slotIdString = slot.getSlotID();
+            android.util.Log.d("PARKING_DEBUG", "Slot: " + slotIdString + " | VIN: " + slot.getCurrent_vin() + " | Ocupado: " + slot.isOccupied());
+            int frameResId = getResources().getIdentifier(slotIdString, "id", getPackageName());
+            int imgResId = getResources().getIdentifier("img_" + slotIdString, "id", getPackageName());
+
+            if (frameResId != 0 && imgResId != 0) {
+                View slotContainer = findViewById(frameResId);
+                ImageView carImageView = findViewById(imgResId);
+
+                // 1. Atualizar a visibilidade da imagem do carro com base no current_vin
+                if (slot.isOccupied()) {
+                    carImageView.setVisibility(View.VISIBLE); // Mostra "ic_carro_exemplo"
+                } else {
+                    carImageView.setVisibility(View.GONE);    // Esconde o carro se estiver livre
+                }
+            }
+        }
+    }
 }
-public

@@ -11,6 +11,7 @@ import android.content.Context;
 public class MainActivity extends AppCompatActivity {
 
     private Button respectBotton;
+    private Button mapButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +19,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         respectBotton = findViewById(R.id.respectBotton);
+        mapButton = findViewById(R.id.mapButton);
 
         respectBotton.setOnClickListener(v -> {
 
             Intent intent = new Intent(MainActivity.this, IntakeActivity.class);
+            startActivity(intent);
+
+        });
+
+        mapButton.setOnClickListener(v -> {
+
+            Intent intent = new Intent(MainActivity.this, MapActivity.class);
             startActivity(intent);
 
         });
