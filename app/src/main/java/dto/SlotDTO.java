@@ -11,9 +11,7 @@ public class SlotDTO {
         this.current_vin = current_vin;
     }
 
-    public Integer getRow() { return row; }
-
-    public String getColumn() { return column; }
+    public String getSlotID() { return column + row; }
 
     public String getCurrent_vin() { return current_vin; }
 }

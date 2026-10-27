@@ -12,7 +12,7 @@ public class MapController {
         this.mapService = new MapService();
     }
 
-    public List<SlotDTO> loadMapSlots(Context cxt) throws Exception {
+    public List<SlotDTO> processMapSlots(Context cxt) throws Exception {
         List<SlotDTO> slots = mapService.fetchMapSlots(cxt);
 
         if (slots == null || slots.isEmpty()) {
