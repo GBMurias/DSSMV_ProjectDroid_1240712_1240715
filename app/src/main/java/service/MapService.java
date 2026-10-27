@@ -23,7 +23,6 @@ public class MapService {
         HttpURLConnection connection = null;
 
         try {
-            // URL para a collection dos slots
             URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "slots");
 
             connection = (HttpURLConnection) url.openConnection();
@@ -42,13 +41,11 @@ public class MapService {
                     response.append(line.trim());
                 }
 
-                // O restdb devolve um JSONArray com todos os documentos
                 JSONArray jsonArray = new JSONArray(response.toString());
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject obj = jsonArray.getJSONObject(i);
 
-                    // Mapeamento exato com base nos teus atributos: row, column, current_vin
                     Integer row = obj.optInt("row", 0);
                     String column = obj.optString("column", "");
                     String currentVin = obj.optString("current_vin", "");
