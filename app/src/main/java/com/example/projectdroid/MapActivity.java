@@ -82,7 +82,6 @@ public class MapActivity extends AppCompatActivity {
                 View slotContainer = findViewById(frameResId);
                 ImageView carImageView = findViewById(imgResId);
 
-                // 1. Atualizar a visibilidade da imagem do carro com base no current_vin
                 if (slot.isOccupied()) {
                     carImageView.setVisibility(View.VISIBLE);
                 } else {
@@ -95,7 +94,7 @@ public class MapActivity extends AppCompatActivity {
     private void popUpInformacaoSlot(String clickedSlotId) {
 
         if (globalSlotsList == null || globalSlotsList.isEmpty()) {
-            Toast.makeText(this, "Os dados do mapa ainda estão a carregar...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Loading map data...", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -113,23 +112,22 @@ public class MapActivity extends AppCompatActivity {
             String vin = selectedSlot.getCurrent_vin();
             String mensagem;
 
-            if (vin == null || vin.trim().isEmpty()) {
-                mensagem = "O slot " + clickedSlotId + " está atualmente LIVRE.";
+            if (selectedSlot.isOccupied()) {
+                mensagem = "Slot: " + clickedSlotId + "\nVehicle Identification Number: " + vin + "\nStatus: Occupied";
             } else {
-                mensagem = "Slot: " + clickedSlotId + "\nVIN do Veículo: " + vin + "\nEstado: Ocupado";
+                mensagem = "Slot " + clickedSlotId + " is currently FREE. ";
             }
 
-
             new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Informação do Slot")
+                    .setTitle("Slot info")
                     .setMessage(mensagem)
-                    .setPositiveButton("Fechar", (dialog, which) -> {
+                    .setPositiveButton("Close", (dialog, which) -> {
                         dialog.dismiss();
                     })
                     .show();
 
         } else {
-            Toast.makeText(this, "Informação não encontrada para este slot.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No information found for this slot. ", Toast.LENGTH_SHORT).show();
         }
     }
 }
