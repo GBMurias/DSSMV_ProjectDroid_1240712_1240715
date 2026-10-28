@@ -47,15 +47,13 @@ public class NHTSAService {
                         year = Integer.parseInt(yearStr);
                     } catch (NumberFormatException ignored) {}
 
-                    // Validação simples
                     if (!make.isEmpty() && !make.equals("Unknown")) {
-                        // Transforma os dados num VehicleDTO e retorna-o diretamente!
                         return new VehicleDTO(vin, make, model, year);
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Exceção ao consultar NHTSA: " + e.getMessage(), e);
+            Log.e(TAG, "Exception while consulting NHTSA: " + e.getMessage(), e);
         } finally {
             if (connection != null) {
                 connection.disconnect();

@@ -59,7 +59,7 @@ public class ObjCreationTest {
                     while ((line = br.readLine()) != null) {
                         response.append(line.trim());
                     }
-                    Log.d(TAG, "50 Slots (0-9, A-F) criados com sucesso! Resposta: " + response.toString());
+                    Log.d(TAG, "50 Slots (0-9, A-F) created successfully! Response: " + response.toString());
                 } else {
                     BufferedReader br = new BufferedReader(new InputStreamReader(connection.getErrorStream(), "utf-8"));
                     StringBuilder errorResponse = new StringBuilder();
@@ -67,11 +67,11 @@ public class ObjCreationTest {
                     while ((line = br.readLine()) != null) {
                         errorResponse.append(line.trim());
                     }
-                    Log.e(TAG, "Erro ao criar slots (" + responseCode + "): " + errorResponse.toString());
+                    Log.e(TAG, "Error while creating slots (" + responseCode + "): " + errorResponse.toString());
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Exceção: " + e.getMessage(), e);
+                Log.e(TAG, "Exception: " + e.getMessage(), e);
             } finally {
                 if (connection != null) {
                     connection.disconnect();

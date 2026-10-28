@@ -53,11 +53,11 @@ public class MapService {
                     slotList.add(new SlotDTO(row, column, currentVin));
                 }
             } else {
-                Log.e(TAG, "Erro ao obter slots, código HTTP: " + responseCode);
+                Log.e(TAG, "Error while getting slots, HTTP code: " + responseCode);
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Exceção ao comunicar com o restdb para obter o mapa: " + e.getMessage(), e);
+            Log.e(TAG, "Exception while communicating with restdb to obtain the map: " + e.getMessage(), e);
         } finally {
             if (connection != null) {
                 connection.disconnect();

@@ -13,6 +13,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="120dp"
+        android:backgroundTint="#613A2C"
         android:hint="Insert VIN here..."
         android:inputType="textPersonName"
         android:minHeight="48dp"
@@ -24,11 +25,82 @@
         android:id="@+id/aaa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="#A0522D"
         android:layout_marginStart="116dp"
         android:layout_marginTop="180dp"
         android:text="Confirm VIN"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></Button>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPopup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:visibility="gone"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/aaa">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvVehicleInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Make / Model / Year"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Is this vehicle salvageable?"
+                android:textColor="#555555"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/btnNo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="No"
+                    android:backgroundTint="#D32F2F"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/btnYes"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Yes"
+                    android:backgroundTint="#388E3C"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

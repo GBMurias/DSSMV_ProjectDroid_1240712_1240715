@@ -25,6 +25,8 @@ public class VehicleService {
             jsonBody.put("Make", dto.getMake());
             jsonBody.put("Model", dto.getModel());
             jsonBody.put("Year", dto.getYear());
+            jsonBody.put("is_salvageable", dto.isSalvageable());
+
 
             URL url = new URL(
                     ApiGetInfo.getApiUrl(cxt) + "intakes"
@@ -48,7 +50,7 @@ public class VehicleService {
             return (responseCode >= 200 && responseCode < 300);
 
         } catch (Exception e) {
-            Log.e(TAG, "Erro ao guardar veículo no restdb: " + e.getMessage(), e);
+            Log.e(TAG, "Error while storing vehicle in restdb: " + e.getMessage(), e);
             return false;
         } finally {
             if (connection != null) {

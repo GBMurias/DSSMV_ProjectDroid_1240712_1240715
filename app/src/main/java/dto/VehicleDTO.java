@@ -9,6 +9,8 @@ public class VehicleDTO {
 
     private Integer year;
 
+    private boolean is_salvageable;
+
     public VehicleDTO(String vin, String make, String model, Integer year) {
         this.vin = vin;
         this.make = make;
@@ -16,24 +18,21 @@ public class VehicleDTO {
         this.year = year;
     }
 
-    public void setVin(String vin) {
+    public VehicleDTO(String vin, String make, String model, Integer year, boolean is_salvageable) {
         this.vin = vin;
-    }
-
-    public void setMake(String make) {
         this.make = make;
-    }
-
-    public void setModel(String model) {
         this.model = model;
+        this.year = year;
+        this.is_salvageable = is_salvageable;
     }
 
-    public void setYear(Integer year) {
-        this.year = year;
+    public void setSalvageable(boolean salvageable) {
+        this.is_salvageable = salvageable;
     }
 
     public String getVin() { return vin; }
     public String getMake() { return make; }
     public String getModel() { return model; }
     public Integer getYear() { return year; }
+    public boolean isSalvageable() { return is_salvageable; }
 }

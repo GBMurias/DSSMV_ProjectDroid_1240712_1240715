@@ -15,8 +15,9 @@ public class Slot {
     public void setColumn(String column) { this.column = column; }
     public void setCurrent_vin(String current_vin) { this.current_vin = current_vin; }
 
-    public Integer getRow() {return row; }
-    public String getColumn() {return column; }
+    public String getSlotID() { return column + row; }
     public String getCurrent_vin() { return current_vin; }
-
+    public boolean isOccupied() {
+        return current_vin != null && !current_vin.trim().isEmpty() && !current_vin.equalsIgnoreCase("null");
+    }
 }

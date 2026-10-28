@@ -22,10 +22,8 @@ public class MapActivity extends AppCompatActivity {
             MapController controller = new MapController();
 
             try {
-                // Pede a lista de SlotDTO atualizada através da arquitetura Controller-Service
                 List<SlotDTO> slots = controller.processMapSlots(MapActivity.this);
 
-                // Atualiza a interface gráfica na thread principal
                 runOnUiThread(() -> {
                     updateMapUI(slots);
                 });
@@ -33,7 +31,7 @@ public class MapActivity extends AppCompatActivity {
             } catch (Exception e) {
                 String errorMsg = e.getMessage();
                 runOnUiThread(() -> {
-                    Toast.makeText(MapActivity.this, "Erro ao carregar mapa: " + errorMsg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MapActivity.this, "Error while loading map data: " + errorMsg, Toast.LENGTH_LONG).show();
                 });
             }
         }).start();
@@ -41,7 +39,7 @@ public class MapActivity extends AppCompatActivity {
     private void updateMapUI(List<SlotDTO> slots) {
         for (SlotDTO slot : slots) {
             String slotIdString = slot.getSlotID();
-            android.util.Log.d("PARKING_DEBUG", "Slot: " + slotIdString + " | VIN: " + slot.getCurrent_vin() + " | Ocupado: " + slot.isOccupied());
+            android.util.Log.d("PARKING_DEBUG", "Slot: " + slotIdString + " | VIN: " + slot.getCurrent_vin() + " | Occupied: " + slot.isOccupied());
             int frameResId = getResources().getIdentifier(slotIdString, "id", getPackageName());
             int imgResId = getResources().getIdentifier("img_" + slotIdString, "id", getPackageName());
 
@@ -49,11 +47,10 @@ public class MapActivity extends AppCompatActivity {
                 View slotContainer = findViewById(frameResId);
                 ImageView carImageView = findViewById(imgResId);
 
-                // 1. Atualizar a visibilidade da imagem do carro com base no current_vin
                 if (slot.isOccupied()) {
-                    carImageView.setVisibility(View.VISIBLE); // Mostra "ic_carro_exemplo"
+                    carImageView.setVisibility(View.VISIBLE);
                 } else {
-                    carImageView.setVisibility(View.GONE);    // Esconde o carro se estiver livre
+                    carImageView.setVisibility(View.GONE);
                 }
             }
         }

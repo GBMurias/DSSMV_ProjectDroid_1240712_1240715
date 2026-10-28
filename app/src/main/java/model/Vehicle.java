@@ -1,24 +1,16 @@
 package model;
 
-import com.google.gson.annotations.SerializedName;
-
 public class Vehicle {
-    @SerializedName("VIN")
     private String vin;
 
-    @SerializedName("Make")
     private String make;
 
-    @SerializedName("Model")
     private String model;
 
-    @SerializedName("Year")
     private int year;
 
-    @SerializedName("slot_id")
     private String parkSlot;
 
-    @SerializedName("is_salvageale")
     private boolean status;
 
     public Vehicle(String vin, String make, String model, int year, String parkSlot, boolean status) {

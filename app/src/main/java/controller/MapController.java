@@ -16,7 +16,7 @@ public class MapController {
         List<SlotDTO> slots = mapService.fetchMapSlots(cxt);
 
         if (slots == null || slots.isEmpty()) {
-            throw new RuntimeException("Não foram encontrados slots na base de dados.");
+            throw new RuntimeException("No slots were found in the data base.");
         }
 
         return slots;
