@@ -5,13 +5,16 @@ import service.NHTSAService;
 import service.VehicleService;
 import android.content.Context;
 import android.util.Log;
+import static dto.Mapper.vehicleDTO2Vehicle;
+import static dto.Mapper.vehicle2VehicleDTO;
+import model.Vehicle;
 
 public class VehicleController {
     private static final String TAG = "VehicleCtrl";
     private final NHTSAService nhtsaService = new NHTSAService();
     private final VehicleService vehicleService = new VehicleService();
 
-    public VehicleDTO validateVehicleIntake(String vin, Context cxt) throws Exception {
+    public Vehicle validateVehicleIntake(String vin, Context cxt) throws Exception {
 
         if (vin == null || vin.trim().isEmpty()) {
             throw new IllegalArgumentException("The VIN field can't be empty.");
@@ -28,15 +31,15 @@ public class VehicleController {
             throw new RuntimeException("Vehicle rejected: The system doesn't accept models prior to 1980.");
         }
 
-        return vehicleDTO;
+        return vehicleDTO2Vehicle(vehicleDTO);
     }
 
-    public void processVehicleIntake(Context cxt, VehicleDTO vehicleDTO) throws Exception {
-        if (vehicleDTO == null) {
+    public void processVehicleIntake(Context cxt, Vehicle vehicle) throws Exception {
+        if (vehicle == null) {
             throw new IllegalArgumentException("Vehicle data cannot be null.");
         }
 
-        boolean isRegistered = vehicleService.registerIntake(cxt, vehicleDTO);
+        boolean isRegistered = vehicleService.registerIntake(cxt, vehicle2VehicleDTO(vehicle));
         if (!isRegistered) {
             Log.e(TAG, "Error while registering vehicle in the data base.");
             throw new RuntimeException("Error while registering vehicle in the data base.");

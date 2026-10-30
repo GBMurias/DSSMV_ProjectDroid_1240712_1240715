@@ -11,6 +11,7 @@ import androidx.cardview.widget.CardView;
 
 import controller.VehicleController;
 import dto.VehicleDTO;
+import model.Vehicle;
 
 public class IntakeActivity extends AppCompatActivity {
 
@@ -18,7 +19,7 @@ public class IntakeActivity extends AppCompatActivity {
     private TextView tvVehicleInfo;
     private Button buttonVIN, btnYes, btnNo;
     private CardView cardPopup;
-    private VehicleDTO pendingVehicle = null;
+    private Vehicle pendingVehicle = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class IntakeActivity extends AppCompatActivity {
 
                 try {
 
-                    VehicleDTO vehicle = controller.validateVehicleIntake(vin, IntakeActivity.this);
+                    Vehicle vehicle = controller.validateVehicleIntake(vin, IntakeActivity.this);
                     pendingVehicle = vehicle;
 
                     runOnUiThread(() -> {
@@ -78,7 +79,7 @@ public class IntakeActivity extends AppCompatActivity {
     private void setVehicleStatus (boolean is_salvageable) {
         if (pendingVehicle == null) return;
 
-        pendingVehicle.setSalvageable(is_salvageable);
+        pendingVehicle.setStatus(is_salvageable);
         new Thread(() -> {
             VehicleController controller = new VehicleController();
             try {

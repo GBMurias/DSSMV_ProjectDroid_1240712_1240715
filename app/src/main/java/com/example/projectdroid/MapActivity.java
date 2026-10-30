@@ -1,9 +1,6 @@
 package com.example.projectdroid;
 
-import static android.content.ContentValues.TAG;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
@@ -15,11 +12,11 @@ import java.util.List;
 
 import controller.MapController;
 import dto.SlotDTO;
+import model.Slot;
 
 public class MapActivity extends AppCompatActivity {
 
-
-    private List<SlotDTO> globalSlotsList;
+    private List<Slot> globalSlotsList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +50,7 @@ public class MapActivity extends AppCompatActivity {
 
             try {
 
-                List<SlotDTO> slots = controller.processMapSlots(MapActivity.this);
+                List<Slot> slots = controller.processMapSlots(MapActivity.this);
 
                 globalSlotsList = slots;
 
@@ -71,8 +68,8 @@ public class MapActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void updateMapUI(List<SlotDTO> slots) {
-        for (SlotDTO slot : slots) {
+    private void updateMapUI(List<Slot> slots) {
+        for (Slot slot : slots) {
             String slotIdString = slot.getSlotID();
             android.util.Log.d("PARKING_DEBUG", "Slot: " + slotIdString + " | VIN: " + slot.getCurrent_vin() + " | Occupied: " + slot.isOccupied());
             int frameResId = getResources().getIdentifier(slotIdString, "id", getPackageName());
@@ -98,10 +95,10 @@ public class MapActivity extends AppCompatActivity {
             return;
         }
 
-        SlotDTO selectedSlot = null;
+        Slot selectedSlot = null;
 
 
-        for (SlotDTO slot : globalSlotsList) {
+        for (Slot slot : globalSlotsList) {
             if (slot.getSlotID().equals(clickedSlotId)) {
                 selectedSlot = slot;
                 break;
