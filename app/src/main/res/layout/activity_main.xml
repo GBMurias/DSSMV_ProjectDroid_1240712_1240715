@@ -38,13 +38,13 @@
         android:shadowRadius="5" />
 
     <Button
-        android:id="@+id/storageBotton"
+        android:id="@+id/inventoryButton"
         android:layout_width="165dp"
         android:layout_height="wrap_content"
         android:backgroundTint="#A0522D"
         android:paddingHorizontal="24dp"
         android:paddingVertical="12dp"
-        android:text="Check storage"
+        android:text="Check inventory"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:shadowColor="#000000"

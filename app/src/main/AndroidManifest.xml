@@ -33,6 +33,11 @@
             android:exported="false"
             android:theme="@style/Theme.ProjectDroid"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".InventoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ProjectDroid"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
