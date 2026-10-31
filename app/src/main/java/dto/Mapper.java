@@ -3,6 +3,7 @@ package dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Parts;
 import model.Slot;
 import model.Vehicle;
 
@@ -32,5 +33,33 @@ public class Mapper {
         VehicleDTO dto = null;
         dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus());
         return dto;
+    }
+
+    public static Parts partsDTO2Parts(PartsDTO dto) throws NullPointerException {
+        Parts mappedData = null;
+        mappedData = new Parts(dto.getName());
+        return mappedData;
+    }
+
+    public static List<Parts> partsDTOList2PartsList(List<PartsDTO> dtoList) throws NullPointerException {
+        List<Parts> partsList = new ArrayList<>();
+        for (PartsDTO dto : dtoList){
+            partsList.add(partsDTO2Parts(dto));
+        }
+        return partsList;
+    }
+
+    public static Parts storedPartsDTO2StoredParts(PartsDTO dto) throws NullPointerException {
+        Parts mappedData = null;
+        mappedData = new Parts(dto.getName(), dto.getAssociatedVIN(), dto.getAssociatedModel(), dto.getAssociatedMake(), dto.getAssociatedYear());
+        return mappedData;
+    }
+
+    public static List<Parts> storedPartsDTOList2StoredPartsList(List<PartsDTO> dtoList) throws NullPointerException {
+        List<Parts> storedPartsList = new ArrayList<>();
+        for (PartsDTO dto : dtoList){
+            storedPartsList.add(storedPartsDTO2StoredParts(dto));
+        }
+        return storedPartsList;
     }
 }

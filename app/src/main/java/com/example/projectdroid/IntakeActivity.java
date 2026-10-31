@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
 
 import controller.VehicleController;
@@ -23,6 +24,7 @@ public class IntakeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intake);
 
@@ -63,6 +65,7 @@ public class IntakeActivity extends AppCompatActivity {
                     String errorMessage = e.getMessage();
                     runOnUiThread(() -> {
                         Toast.makeText(IntakeActivity.this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
+                        buttonVIN.setEnabled(true);
                     });
                 }
             }).start();
@@ -70,10 +73,12 @@ public class IntakeActivity extends AppCompatActivity {
 
         btnYes.setOnClickListener(v -> {
             setVehicleStatus(true);
+            cardPopup.setVisibility(View.GONE);
         });
 
         btnNo.setOnClickListener(v -> {
             setVehicleStatus(false);
+            cardPopup.setVisibility(View.GONE);
         });
     }
     private void setVehicleStatus (boolean is_salvageable) {
@@ -91,7 +96,6 @@ public class IntakeActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
 
                     etInput.setText("");
-                    cardPopup.setVisibility(View.GONE);
                     buttonVIN.setEnabled(true);
                     pendingVehicle = null;
                 });
@@ -100,6 +104,8 @@ public class IntakeActivity extends AppCompatActivity {
                 String err = e.getMessage();
                 runOnUiThread(() -> {
                     Toast.makeText(IntakeActivity.this, "Save Error: " + err, Toast.LENGTH_LONG).show();
+                    buttonVIN.setEnabled(true);
+                    pendingVehicle = null;
                 });
             }
         }).start();

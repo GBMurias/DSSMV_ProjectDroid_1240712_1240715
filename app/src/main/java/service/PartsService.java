@@ -11,13 +11,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import dto.PartsDTO;
 
-public class InfoService {
+public class PartsService {
 
-    private static final String TAG = "ArrayService";
+    private static final String TAG = "PartsService";
 
-    public ArrayList<String> fetchSimpleInfo(Context cxt, String infoType){
-        ArrayList<String> infoList = new ArrayList<>();
+    public List<PartsDTO> fetchPartsInfo(Context cxt, String infoType) {
+        List<PartsDTO> partsList = new ArrayList<>();
         HttpURLConnection connection = null;
         try {
             URL url = new URL(ApiGetInfo.getApiUrl(cxt) + infoType);
@@ -29,7 +31,7 @@ public class InfoService {
             connection.setReadTimeout(8000);
 
             int responseCode = connection.getResponseCode();
-            if (responseCode == 200){
+            if (responseCode == 200) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
                 StringBuilder response = new StringBuilder();
                 String line;
@@ -38,12 +40,24 @@ public class InfoService {
                 }
 
                 JSONArray jsonArray = new JSONArray(response.toString());
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject obj = jsonArray.getJSONObject(i);
-                    String partName = obj.getString("name");
-                    infoList.add(partName);
+                if (infoType.equals("parts")) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject obj = jsonArray.getJSONObject(i);
+                        String partName = obj.getString("name");
+                        partsList.add(new PartsDTO(partName));
+                    }
+                } else if (infoType.equals("inventory")) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject obj = jsonArray.getJSONObject(i);
+                        String partName = obj.getString("name");
+                        String associatedVIN = obj.getString("associatedVIN");
+                        String associatedModel = obj.getString("associatedModel");
+                        String associatedMake = obj.getString("associatedMake");
+                        Integer associatedYear = obj.getInt("associatedYear");
+                        partsList.add(new PartsDTO(partName, associatedVIN, associatedModel, associatedMake, associatedYear));
+                    }
                 }
+
             } else {
                 Log.e(TAG, "Error while fetching info, HTTP code: " + responseCode);
             }
@@ -56,6 +70,6 @@ public class InfoService {
             }
         }
 
-        return infoList;
+        return partsList;
     }
 }

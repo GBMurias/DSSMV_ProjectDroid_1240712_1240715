@@ -3,13 +3,79 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="24dp"
+    android:background="@drawable/rust_backgroundblur"
     tools:context=".InventoryActivity">
 
-    <ListView
-        android:id="@+id/lvInventory"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/rounded_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/rust" />
+
+        <ListView
+            android:id="@+id/lvInventory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardPopup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Associated Vehicle Details"
+                    android:textColor="#333333"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp" />
+
+            <!-- TextView onde vais injetar Make, Model e Year -->
+                <TextView
+                    android:id="@+id/tvPartDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btnClosePopup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Close"
+                    android:backgroundTint="#A0522D"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
