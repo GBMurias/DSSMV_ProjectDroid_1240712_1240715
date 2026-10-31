@@ -1,57 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="@drawable/rust_backgroundblurbw"
+    tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/respectBotton"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#A0522D"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="12dp"
-        android:text="Register vehicle"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="5" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Button
-        android:id="@+id/mapButton"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#A0522D"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="12dp"
-        android:text="Check map"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="5" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/inventoryButton"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#A0522D"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="12dp"
-        android:text="Check inventory"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="5" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/rust_background" />
 
+            <Button
+                android:id="@+id/respectBotton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#A0522D"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp"
+                android:text="Register vehicle"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/mapButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
 
+            <Button
+                android:id="@+id/mapButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#A0522D"
+                android:layout_marginTop="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp"
+                android:text="Check map"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/respectBotton"
+                app:layout_constraintBottom_toTopOf="@id/inventoryButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
+            <Button
+                android:id="@+id/inventoryButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#A0522D"
+                android:layout_marginTop="16dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp"
+                android:text="Check inventory"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/mapButton"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-</LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
