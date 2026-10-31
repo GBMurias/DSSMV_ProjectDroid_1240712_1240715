@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import model.Parts;
 import service.ApiGetInfo;
 import dto.VehicleDTO;
 
@@ -27,6 +29,19 @@ public class VehicleService {
             jsonBody.put("Year", dto.getYear());
             jsonBody.put("is_salvageable", dto.isSalvageable());
 
+            if (dto.getPartsList() != null && !dto.getPartsList().isEmpty()) {
+                JSONArray partsArray = new JSONArray();
+                for (Parts part : dto.getPartsList()) {
+                    JSONObject partObj = new JSONObject();
+                    partObj.put("name", part.getName());
+                    partObj.put("associatedVIN", part.getAssociatedVIN());
+                    partObj.put("associatedModel", part.getAssociatedModel());
+                    partObj.put("associatedMake", part.getAssociatedMake());
+                    partObj.put("associatedYear", part.getAssociatedYear());
+                    partsArray.put(partObj);
+                }
+                jsonBody.put("parts", partsArray);
+            }
 
             URL url = new URL(
                     ApiGetInfo.getApiUrl(cxt) + "intakes"

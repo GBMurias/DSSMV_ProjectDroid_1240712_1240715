@@ -24,4 +24,5 @@ public class PartsDTO {
     public String getAssociatedModel() { return associatedModel; }
     public String getAssociatedMake() { return associatedMake; }
     public Integer getAssociatedYear() { return associatedYear; }
+
 }

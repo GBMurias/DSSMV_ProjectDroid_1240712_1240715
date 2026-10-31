@@ -25,13 +25,13 @@ public class Mapper {
 
     public static Vehicle vehicleDTO2Vehicle(VehicleDTO dto) throws NullPointerException {
         Vehicle mappedData = null;
-        mappedData = new Vehicle(dto.getVin(), dto.getMake(), dto.getModel(), dto.getYear(), dto.isSalvageable());
+        mappedData = new Vehicle(dto.getVin(), dto.getMake(), dto.getModel(), dto.getYear(), dto.isSalvageable(), dto.getPartsList());
         return mappedData;
     }
 
     public static VehicleDTO vehicle2VehicleDTO(Vehicle vehicle) throws NullPointerException {
         VehicleDTO dto = null;
-        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus());
+        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), vehicle.getPartsList());
         return dto;
     }
 

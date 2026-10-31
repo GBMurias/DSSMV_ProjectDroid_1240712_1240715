@@ -20,10 +20,20 @@ public class Parts {
         this.associatedYear = associatedYear;
     }
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
     public String getName() { return name; }
     public String getAssociatedVIN() { return associatedVIN; }
     public String getAssociatedModel() { return associatedModel; }
     public String getAssociatedMake() { return associatedMake; }
     public Integer getAssociatedYear() { return associatedYear; }
+
+    public void setAssociatedVIN(String associatedVIN) { this.associatedVIN = associatedVIN; }
+    public void setAssociatedModel(String associatedModel) { this.associatedModel = associatedModel; }
+    public void setAssociatedMake(String associatedMake) { this.associatedMake = associatedMake; }
+    public void setAssociatedYear(Integer associatedYear) { this.associatedYear = associatedYear; }
 
 }

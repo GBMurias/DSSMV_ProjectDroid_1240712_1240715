@@ -1,26 +1,37 @@
 package com.example.projectdroid;
 
 import android.os.Bundle;
+import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import controller.PartsController;
 import controller.VehicleController;
 import dto.VehicleDTO;
+import model.Parts;
 import model.Vehicle;
 
 public class IntakeActivity extends AppCompatActivity {
 
     private EditText etInput;
     private TextView tvVehicleInfo;
-    private Button buttonVIN, btnYes, btnNo;
-    private CardView cardPopup;
+    private Button buttonVIN, btnYes, btnNo, btnAddPart;
+    private CardView cardPopup, cardPartsPopup;
+    private ListView listViewParts;
     private Vehicle pendingVehicle = null;
+    private List<Parts> fetchedPartsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +46,13 @@ public class IntakeActivity extends AppCompatActivity {
         btnNo = findViewById(R.id.btnNo);
         cardPopup = findViewById(R.id.cardPopup);
         tvVehicleInfo = findViewById(R.id.tvVehicleInfo);
+        cardPartsPopup = findViewById(R.id.cardPartsPopup);
+        btnAddPart = findViewById(R.id.btnAddPart);
+        listViewParts = findViewById(R.id.listViewParts);
 
-                buttonVIN.setOnClickListener(v -> {
+        buttonVIN.setOnClickListener(v -> {
 
             String vin = etInput.getText().toString().trim();
-
 
             if (vin.isEmpty()) {
                 etInput.setError("Please enter a VIN.");
@@ -50,7 +63,6 @@ public class IntakeActivity extends AppCompatActivity {
                 VehicleController controller = new VehicleController();
 
                 try {
-
                     Vehicle vehicle = controller.validateVehicleIntake(vin, IntakeActivity.this);
                     pendingVehicle = vehicle;
 
@@ -72,29 +84,66 @@ public class IntakeActivity extends AppCompatActivity {
         });
 
         btnYes.setOnClickListener(v -> {
-            setVehicleStatus(true);
+            if (pendingVehicle != null) {
+                pendingVehicle.setStatus(true);
+            }
             cardPopup.setVisibility(View.GONE);
+            cardPartsPopup.setVisibility(View.VISIBLE);
+
+            loadParts();
         });
 
         btnNo.setOnClickListener(v -> {
-            setVehicleStatus(false);
+            if (pendingVehicle != null) {
+                pendingVehicle.setStatus(false);
+            }
             cardPopup.setVisibility(View.GONE);
+            saveVehicle("Vehicle registered as non-salvageable.");
+        });
+
+        btnAddPart.setOnClickListener(v -> {
+            if (pendingVehicle != null) {
+                SparseBooleanArray checkedPositions = listViewParts.getCheckedItemPositions();
+                List<Parts> selectedPartsList = new ArrayList<>();
+
+                for (int i = 0; i < checkedPositions.size(); i++) {
+                    int position = checkedPositions.keyAt(i);
+                    if (checkedPositions.valueAt(i)) {
+                        Parts part = fetchedPartsList.get(position);
+
+                        part.setAssociatedVIN(pendingVehicle.getVin());
+                        part.setAssociatedMake(pendingVehicle.getMake());
+                        part.setAssociatedModel(pendingVehicle.getModel());
+                        part.setAssociatedYear(pendingVehicle.getYear());
+
+                        selectedPartsList.add(part);
+                    }
+                }
+
+                if (selectedPartsList.isEmpty()) {
+                    Toast.makeText(IntakeActivity.this, "Please select at least one part.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                pendingVehicle.setPartsList(selectedPartsList);
+
+                cardPartsPopup.setVisibility(View.GONE);
+                saveVehicle("Success! Vehicle and selected parts registered.");
+            }
         });
     }
-    private void setVehicleStatus (boolean is_salvageable) {
+    private void saveVehicle(String successMessage) {
         if (pendingVehicle == null) return;
 
-        pendingVehicle.setStatus(is_salvageable);
         new Thread(() -> {
             VehicleController controller = new VehicleController();
             try {
                 controller.processVehicleIntake(IntakeActivity.this, pendingVehicle);
 
                 runOnUiThread(() -> {
-                    Toast.makeText(IntakeActivity.this,
-                            "Success! Vehicle registered. Salvageable: " + is_salvageable,
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(IntakeActivity.this, successMessage, Toast.LENGTH_LONG).show();
 
+                    cardPartsPopup.setVisibility(View.GONE);
                     etInput.setText("");
                     buttonVIN.setEnabled(true);
                     pendingVehicle = null;
@@ -107,6 +156,31 @@ public class IntakeActivity extends AppCompatActivity {
                     buttonVIN.setEnabled(true);
                     pendingVehicle = null;
                 });
+            }
+        }).start();
+    }
+    private void loadParts() {
+        new Thread(() -> {
+            try {
+                PartsController partsController = new PartsController();
+                fetchedPartsList = partsController.processPartsInfo(IntakeActivity.this);
+
+                runOnUiThread(() -> {
+                    if (fetchedPartsList != null && !fetchedPartsList.isEmpty()) {
+                        ArrayAdapter<Parts> adapter = new ArrayAdapter<>(
+                                IntakeActivity.this,
+                                android.R.layout.simple_list_item_multiple_choice,
+                                fetchedPartsList
+                        );
+                        listViewParts.setAdapter(adapter);
+                        listViewParts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                    } else {
+                        Toast.makeText(IntakeActivity.this, "No parts found in database.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(IntakeActivity.this, "Error loading parts: " + e.getMessage(), Toast.LENGTH_LONG).show());
             }
         }).start();
     }
