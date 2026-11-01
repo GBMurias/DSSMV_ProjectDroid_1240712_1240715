@@ -62,4 +62,9 @@ public class Mapper {
         }
         return storedPartsList;
     }
+    public static SlotDTO Slot2slotDTO(Slot x){
+        Slot mapped_data = x;
+        SlotDTO y = new SlotDTO(x.getRow(),x.getColumn(),x.getCurrent_vin());
+        return y;
+    }
 }

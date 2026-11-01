@@ -12,5 +12,8 @@ public class SlotDTO {
     }
 
     public String getSlotID() { return column + row; }
+
+    public Integer getRow(){return row;}
+    public String getColumn(){return column;}
     public String getCurrent_vin() { return current_vin; }
 }

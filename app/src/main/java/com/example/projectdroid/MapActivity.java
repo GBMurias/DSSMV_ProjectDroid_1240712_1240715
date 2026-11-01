@@ -1,45 +1,130 @@
 package com.example.projectdroid;
 
+
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.cardview.widget.CardView;
 
 import java.util.List;
-
+import service.MapService;
 import controller.MapController;
 import dto.SlotDTO;
 import model.Slot;
+import model.Vehicle;
 
 public class MapActivity extends AppCompatActivity {
 
     private List<Slot> globalSlotsList;
+    private String selectedSlotId = "";
+    private String vehicleModel = "";
+
+    private String origin;
+    private CardView cardPopup;
+    private TextView tvVehicleInfo;
+    private Button btnNo;
+    private Button btnYes;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        cardPopup = findViewById(R.id.MapcardPopup);
+        tvVehicleInfo = findViewById(R.id.MapVehicleInfo);
+        btnNo = findViewById(R.id.MapbtnNo);
+        btnYes = findViewById(R.id.MapbtnYes);
+
         loadMapData();
 
-        GridLayout gridLayout = findViewById(R.id.grid_layout);
-        for(int i = 0; i < gridLayout.getChildCount(); i++){
+        if (getIntent() != null) {
+            origin = getIntent().getStringExtra("Where");
+            vehicleModel = getIntent().getStringExtra("Modelo");
+        }
 
+
+        btnYes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedSlotId != null && !selectedSlotId.isEmpty()) {
+
+
+                    String columnStr = selectedSlotId.substring(0, 1);
+                    int rowInt = Integer.parseInt(selectedSlotId.substring(1));
+                    String vin = getIntent().getStringExtra("VIN");
+
+
+                    SlotDTO tempdto = new SlotDTO(rowInt, columnStr, vin);
+
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MapService service = new MapService();
+                            boolean success = service.registerVIN2Slot(MapActivity.this, tempdto);
+
+                            if (vin == null || vin.isEmpty()) {
+                                Toast.makeText(MapActivity.this, "Erro: O VIN do veículo não foi recebido!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (success) {
+                                        Toast.makeText(MapActivity.this, "Lugar " + selectedSlotId + " ocupado com sucesso!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(MapActivity.this, "Erro ao atualizar o slot na base de dados.", Toast.LENGTH_SHORT).show();
+                                    }
+                                    cardPopup.setVisibility(View.GONE);
+                                }
+                            });
+                        }
+                    }).start();
+                }
+            }
+        });
+
+        btnNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cardPopup.setVisibility(View.GONE);
+            }
+        });
+
+        GridLayout gridLayout = findViewById(R.id.grid_layout);
+
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
             View child = gridLayout.getChildAt(i);
 
-            if(child instanceof FrameLayout){
-                FrameLayout slot = (FrameLayout) child;
-                String slotIdName = getResources().getResourceEntryName(slot.getId());
+            if (child instanceof FrameLayout) {
+                FrameLayout tempslot = (FrameLayout) child;
+                String slotIdName = getResources().getResourceEntryName(tempslot.getId());
 
-                slot.setOnClickListener(new View.OnClickListener() {
+                tempslot.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v){
+                    public void onClick(View v) {
 
-                        popUpInformacaoSlot(slotIdName);
+                        if ("IntakeAct".equals(origin)) {
+
+                            selectedSlotId = slotIdName;
+
+
+                            tvVehicleInfo.setText("Modelo: " + vehicleModel + "\nSlot: " + selectedSlotId);
+                            cardPopup.setVisibility(View.VISIBLE);
+
+                            // escreve aqui
+                        } else {
+                            popUpInformationSlot(slotIdName);
+                        }
                     }
                 });
             }
@@ -90,7 +175,7 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    private void popUpInformacaoSlot(String clickedSlotId) {
+    private void popUpInformationSlot(String clickedSlotId) {
 
         if (globalSlotsList == null || globalSlotsList.isEmpty()) {
             Toast.makeText(this, "Loading map data...", Toast.LENGTH_SHORT).show();
@@ -129,4 +214,5 @@ public class MapActivity extends AppCompatActivity {
             Toast.makeText(this, "No information found for this slot. ", Toast.LENGTH_SHORT).show();
         }
     }
+
 }

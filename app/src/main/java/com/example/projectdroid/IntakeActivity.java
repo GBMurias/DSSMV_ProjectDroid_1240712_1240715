@@ -1,5 +1,6 @@
 package com.example.projectdroid;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -54,6 +55,7 @@ public class IntakeActivity extends AppCompatActivity {
 
             String vin = etInput.getText().toString().trim();
 
+
             if (vin.isEmpty()) {
                 etInput.setError("Please enter a VIN.");
                 return;
@@ -63,6 +65,7 @@ public class IntakeActivity extends AppCompatActivity {
                 VehicleController controller = new VehicleController();
 
                 try {
+
                     Vehicle vehicle = controller.validateVehicleIntake(vin, IntakeActivity.this);
                     pendingVehicle = vehicle;
 
@@ -144,6 +147,13 @@ public class IntakeActivity extends AppCompatActivity {
                     Toast.makeText(IntakeActivity.this, successMessage, Toast.LENGTH_LONG).show();
 
                     cardPartsPopup.setVisibility(View.GONE);
+
+                    Intent intent = new Intent(IntakeActivity.this, MapActivity.class);
+                    intent.putExtra("Where", "IntakeAct");
+                    intent.putExtra("VIN", pendingVehicle.getVin());
+                    intent.putExtra("Modelo",pendingVehicle.getModel());
+                    startActivity(intent);
+
                     etInput.setText("");
                     buttonVIN.setEnabled(true);
                     pendingVehicle = null;
