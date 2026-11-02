@@ -18,7 +18,6 @@ import service.MapService;
 import controller.MapController;
 import dto.SlotDTO;
 import model.Slot;
-import model.Vehicle;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -38,10 +37,10 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        cardPopup = findViewById(R.id.MapcardPopup);
-        tvVehicleInfo = findViewById(R.id.MapVehicleInfo);
-        btnNo = findViewById(R.id.MapbtnNo);
-        btnYes = findViewById(R.id.MapbtnYes);
+        cardPopup = findViewById(R.id.mapcardPopup);
+        tvVehicleInfo = findViewById(R.id.mapVehicleInfo);
+        btnNo = findViewById(R.id.mapBtnNo);
+        btnYes = findViewById(R.id.mapBtnYes);
 
         loadMapData();
 

@@ -31,5 +31,4 @@ public class Vehicle {
     public Integer getYear() { return year; }
     public boolean getStatus() { return is_salvageable; }
     public List<Parts> getPartsList() { return partsList; }
-
 }

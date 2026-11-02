@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +19,6 @@ import java.util.List;
 
 import controller.PartsController;
 import controller.VehicleController;
-import dto.VehicleDTO;
 import model.Parts;
 import model.Vehicle;
 
@@ -28,7 +26,7 @@ public class IntakeActivity extends AppCompatActivity {
 
     private EditText etInput;
     private TextView tvVehicleInfo;
-    private Button buttonVIN, btnYes, btnNo, btnAddPart;
+    private Button buttonVIN, btnYes, btnNo, btnAddPart, btnScan;
     private CardView cardPopup, cardPartsPopup;
     private ListView listViewParts;
     private Vehicle pendingVehicle = null;
@@ -42,7 +40,7 @@ public class IntakeActivity extends AppCompatActivity {
 
 
         etInput = findViewById(R.id.etInput);
-        buttonVIN = findViewById(R.id.aaa);
+        buttonVIN = findViewById(R.id.btnConfirm);
         btnYes = findViewById(R.id.btnYes);
         btnNo = findViewById(R.id.btnNo);
         cardPopup = findViewById(R.id.cardPopup);
@@ -50,6 +48,7 @@ public class IntakeActivity extends AppCompatActivity {
         cardPartsPopup = findViewById(R.id.cardPartsPopup);
         btnAddPart = findViewById(R.id.btnAddPart);
         listViewParts = findViewById(R.id.listViewParts);
+        btnScan = findViewById(R.id.btnScan);
 
         buttonVIN.setOnClickListener(v -> {
 
@@ -188,7 +187,6 @@ public class IntakeActivity extends AppCompatActivity {
                         Toast.makeText(IntakeActivity.this, "No parts found in database.", Toast.LENGTH_SHORT).show();
                     }
                 });
-
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(IntakeActivity.this, "Error loading parts: " + e.getMessage(), Toast.LENGTH_LONG).show());
             }

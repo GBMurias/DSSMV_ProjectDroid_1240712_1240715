@@ -51,10 +51,7 @@ public class InventoryActivity extends AppCompatActivity {
                     lvInventory.setAdapter(adapter);
                     lvInventory.setOnItemClickListener((parent, view, position, id) -> {
                         Parts clickedPart = (Parts) adapter.getItem(position);
-                        String details = "Make: " + clickedPart.getAssociatedMake() + "\n" +
-                                "Model: " + clickedPart.getAssociatedModel() + "\n" +
-                                "Year: " + clickedPart.getAssociatedYear();
-
+                        String details = clickedPart.getAssociatedMake() + " " + clickedPart.getAssociatedModel() + " - " + clickedPart.getAssociatedYear();
                         tvPartDetails.setText(details);
                         cardPopup.setVisibility(View.VISIBLE);
                     });
