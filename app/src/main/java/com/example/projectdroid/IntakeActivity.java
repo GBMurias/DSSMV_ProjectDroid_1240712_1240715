@@ -14,6 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
 
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +88,36 @@ public class IntakeActivity extends AppCompatActivity {
                     });
                 }
             }).start();
+        });
+
+        btnScan.setOnClickListener(v -> {
+            GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
+                    .setBarcodeFormats(
+                            Barcode.FORMAT_CODE_39,
+                            Barcode.FORMAT_CODE_128
+                    )
+                    .enableAutoZoom()
+                    .build();
+
+            GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(this, options);
+
+            scanner.startScan()
+                    .addOnSuccessListener(barcode -> {
+                        String rawVin = barcode.getRawValue();
+
+                        if (rawVin != null && rawVin.length() == 17) {
+                            etInput.setText(rawVin);
+                            Toast.makeText(this, "VIN scanned: " + rawVin, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, "The scanned code does not contain na valid VIN. ", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnCanceledListener(() -> {
+                        Toast.makeText(this, "Scan canceled", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error while scanning: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    });
         });
 
         btnYes.setOnClickListener(v -> {
