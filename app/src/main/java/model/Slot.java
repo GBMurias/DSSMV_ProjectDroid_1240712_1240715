@@ -11,6 +11,21 @@ public class Slot {
     public Slot(String slotID, String current_vin) {
         this.slotID = slotID;
         this.current_vin = current_vin;
+
+        if (slotID != null && slotID.length() >= 2) {
+            this.column = slotID.substring(0, 1);
+            try {
+                this.row = Integer.parseInt(slotID.substring(1));
+            } catch (NumberFormatException e) {
+                this.row = null;
+            }
+        }
+    }
+    public Slot(Integer row, String column,String current_vin){
+        this.row = row;
+        this.column = column;
+        this.current_vin = current_vin;
+
     }
 
     public void setSlotID(String slotID) { this.slotID = slotID; }

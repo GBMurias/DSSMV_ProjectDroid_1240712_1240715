@@ -1,5 +1,7 @@
 package controller;
 
+import static dto.Mapper.Slot2slotDTO;
+import static dto.Mapper.slotDTO2Slot;
 import static dto.Mapper.storedPartsList2StoredPartsDTOList;
 import static dto.Mapper.slotDTOList2SlotList;
 import static dto.Mapper.vehicle2VehicleDTO;
@@ -38,11 +40,8 @@ public class MapController {
         List<SlotDTO> slotDTOs = mapService.fetchMapSlots(ctx);
         List<Slot> slots = slotDTOList2SlotList(slotDTOs);
 
-        if (slots == null || slots.isEmpty()) {
-            throw new RuntimeException("No slots were found in the data base.");
-        }
+        return slots;   // pode vir vazia, não é erro
 
-        return slots;
     }
 
     public void partsFromMap2Inventory (Context ctx, List<Parts> partsList) throws Exception {
@@ -57,8 +56,8 @@ public class MapController {
         }
     }
 
-    public boolean registerVIN2Slot(Context ctx, SlotDTO tempdto){
-        boolean success = mapService.registerVIN2Slot(ctx, tempdto);
+    public boolean registerVIN2Slot(Context ctx, Slot slot){
+        boolean success = mapService.registerVIN2Slot(ctx,Slot2slotDTO(slot));
         return success;
     }
     public Vehicle getVehicle(Context context, String VIN)throws Exception {
@@ -83,10 +82,9 @@ public class MapController {
     }
 
     public void updateIntakeParts(Context ctx, String vin, List<Parts> partsList) throws Exception {
-        if (partsList == null || partsList.isEmpty()) {
+        if (partsList == null) {
             throw new IllegalArgumentException("Parts data cannot be null.");
         }
-
         boolean isUpdated = vehicleService.updateVehicleParts(ctx, vin, storedPartsList2StoredPartsDTOList(partsList));
         if (!isUpdated) {
             Log.e(TAG, "Error while updating vehicle parts.");

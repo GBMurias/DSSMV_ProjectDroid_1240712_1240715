@@ -67,6 +67,7 @@
                     <ImageView android:id="@+id/img_E0" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
 
+
                 <!-- ==================== LINHA 1 ==================== -->
                 <FrameLayout android:id="@+id/A1" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
                     <TextView android:id="@+id/txt_A1" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="A1" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
@@ -92,6 +93,7 @@
                     <TextView android:id="@+id/txt_E1" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="E1" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
                     <ImageView android:id="@+id/img_E1" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
+
 
                 <!-- ==================== LINHA 2 ==================== -->
                 <FrameLayout android:id="@+id/A2" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
@@ -119,6 +121,7 @@
                     <ImageView android:id="@+id/img_E2" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
 
+
                 <!-- ==================== LINHA 3 ==================== -->
                 <FrameLayout android:id="@+id/A3" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
                     <TextView android:id="@+id/txt_A3" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="A3" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
@@ -144,6 +147,7 @@
                     <TextView android:id="@+id/txt_E3" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="E3" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
                     <ImageView android:id="@+id/img_E3" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
+
 
                 <!-- ==================== LINHA 4 ==================== -->
                 <FrameLayout android:id="@+id/A4" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
@@ -171,6 +175,7 @@
                     <ImageView android:id="@+id/img_E4" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
 
+
                 <!-- ==================== LINHA 5 ==================== -->
                 <FrameLayout android:id="@+id/A5" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
                     <TextView android:id="@+id/txt_A5" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="A5" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
@@ -196,6 +201,7 @@
                     <TextView android:id="@+id/txt_E5" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="E5" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
                     <ImageView android:id="@+id/img_E5" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
+
 
                 <!-- ==================== LINHA 6 ==================== -->
                 <FrameLayout android:id="@+id/A6" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
@@ -223,6 +229,7 @@
                     <ImageView android:id="@+id/img_E6" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
 
+
                 <!-- ==================== LINHA 7 ==================== -->
                 <FrameLayout android:id="@+id/A7" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
                     <TextView android:id="@+id/txt_A7" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="A7" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
@@ -249,6 +256,7 @@
                     <ImageView android:id="@+id/img_E7" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
 
+
                 <!-- ==================== LINHA 8 ==================== -->
                 <FrameLayout android:id="@+id/A8" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
                     <TextView android:id="@+id/txt_A8" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="A8" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
@@ -274,6 +282,7 @@
                     <TextView android:id="@+id/txt_E8" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="E8" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold"/>
                     <ImageView android:id="@+id/img_E8" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:visibility="gone" android:src="@drawable/car"/>
                 </FrameLayout>
+
 
                 <!-- ==================== LINHA 9 ==================== -->
                 <FrameLayout android:id="@+id/A9" android:layout_width="0dp" android:layout_height="0dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="2dp" android:background="@drawable/bg_parking_cell" android:clickable="true" android:focusable="true">
@@ -351,6 +360,7 @@
                         android:layout_marginBottom="8dp" />
 
                     <TextView
+                        android:id="@+id/mapQuestionText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Do you intend to occupy this parking slot?"
