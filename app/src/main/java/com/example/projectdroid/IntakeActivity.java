@@ -101,7 +101,6 @@ public class IntakeActivity extends AppCompatActivity {
                                 Barcode.FORMAT_CODE_39,
                                 Barcode.FORMAT_CODE_128
                         )
-                        .enableAutoZoom()
                         .build();
 
                 GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(IntakeActivity.this, options);

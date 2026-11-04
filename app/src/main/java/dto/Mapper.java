@@ -34,7 +34,7 @@ public class Mapper {
 
     public static VehicleDTO vehicle2VehicleDTO(Vehicle vehicle) throws NullPointerException {
         VehicleDTO dto = null;
-        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), partsList2PartsDTOList(vehicle.getPartsList()));
+        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), StoredPartsList2StoredPartsDTOList(vehicle.getPartsList()));
         return dto;
     }
 
