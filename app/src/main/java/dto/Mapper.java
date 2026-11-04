@@ -78,18 +78,18 @@ public class Mapper {
         return y;
     }
 
-    public static PartsDTO parts2PartsDTO(Parts parts){
+    public static PartsDTO storedParts2StoredPartsDTO(Parts parts){
         PartsDTO dto = new PartsDTO(parts.getName(),parts.getAssociatedVIN(),parts.getAssociatedModel(), parts.getAssociatedMake(), parts.getAssociatedYear());
         return dto;
     }
 
-    public static List<PartsDTO> partsList2PartsDTOList(List<Parts> partslist){
+    public static List<PartsDTO> StoredPartsList2StoredPartsDTOList(List<Parts> partsList){
         List<PartsDTO> listDTO = new ArrayList<>();
-        if (partslist == null) {
+        if (partsList == null) {
             return listDTO;
         }
-        for(Parts parts : partslist){
-            listDTO.add(parts2PartsDTO(parts));
+        for(Parts parts : partsList){
+            listDTO.add(storedParts2StoredPartsDTO(parts));
         }
         return listDTO;
     }

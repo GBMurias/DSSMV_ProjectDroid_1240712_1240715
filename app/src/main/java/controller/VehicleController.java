@@ -14,7 +14,7 @@ public class VehicleController {
     private final NHTSAService nhtsaService = new NHTSAService();
     private final VehicleService vehicleService = new VehicleService();
 
-    public Vehicle validateVehicleIntake(String vin, Context cxt) throws Exception {
+    public Vehicle validateVehicleIntake(String vin) throws Exception {
 
         if (vin == null || vin.trim().isEmpty()) {
             throw new IllegalArgumentException("The VIN field can't be empty.");
@@ -34,12 +34,12 @@ public class VehicleController {
         return vehicleDTO2Vehicle(vehicleDTO);
     }
 
-    public void processVehicleIntake(Context cxt, Vehicle vehicle) throws Exception {
+    public void processVehicleIntake(Context ctx, Vehicle vehicle) throws Exception {
         if (vehicle == null) {
             throw new IllegalArgumentException("Vehicle data cannot be null.");
         }
 
-        boolean isRegistered = vehicleService.registerIntake(cxt, vehicle2VehicleDTO(vehicle));
+        boolean isRegistered = vehicleService.registerIntake(ctx, vehicle2VehicleDTO(vehicle));
         if (!isRegistered) {
             Log.e(TAG, "Error while registering vehicle in the data base.");
             throw new RuntimeException("Error while registering vehicle in the data base.");

@@ -2,6 +2,7 @@ package com.example.projectdroid;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,25 +25,28 @@ public class MainActivity extends AppCompatActivity {
         mapButton = findViewById(R.id.mapButton);
         inventoryButton = findViewById(R.id.inventoryButton);
 
-        respectBotton.setOnClickListener(v -> {
-
-            Intent intent = new Intent(MainActivity.this, IntakeActivity.class);
-            startActivity(intent);
-
+        respectBotton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, IntakeActivity.class);
+                startActivity(intent);
+            }
         });
 
-        mapButton.setOnClickListener(v -> {
-
-            Intent intent = new Intent(MainActivity.this, MapActivity.class);
-            startActivity(intent);
-
+        mapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                startActivity(intent);
+            }
         });
 
-        inventoryButton.setOnClickListener(v -> {
-
-            Intent intent = new Intent(MainActivity.this, InventoryActivity.class);
-            startActivity(intent);
-
+        inventoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, InventoryActivity.class);
+                startActivity(intent);
+            }
         });
     }
 }

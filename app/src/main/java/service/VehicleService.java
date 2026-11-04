@@ -21,7 +21,7 @@ import dto.VehicleDTO;
 public class VehicleService {
     private static final String TAG = "VehicleService";
 
-    public boolean registerIntake(Context cxt, VehicleDTO dto) {
+    public boolean registerIntake(Context ctx, VehicleDTO dto) {
         HttpURLConnection connection = null;
 
         try {
@@ -47,12 +47,12 @@ public class VehicleService {
             }
 
             URL url = new URL(
-                    ApiGetInfo.getApiUrl(cxt) + "intakes"
+                    ApiGetInfo.getApiUrl(ctx) + "intakes"
             );
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
+            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(ctx));
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);

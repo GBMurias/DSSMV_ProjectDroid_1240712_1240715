@@ -19,7 +19,7 @@ public class ObjCreationTest {
         new Thread(() -> {
             HttpURLConnection connection = null;
             try {
-                // criar objeto JSON para o slot e JSONArray para guardar varios slots
+                // criar objeto JSON para o slot e JSONArray para guardar varios
                 JSONArray slotsArray = new JSONArray();
                         JSONObject slot = new JSONObject();
                         slot.put("row", 67);

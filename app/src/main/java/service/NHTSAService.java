@@ -59,7 +59,7 @@ public class NHTSAService {
                 connection.disconnect();
             }
         }
-        // Retorna null se houver qualquer falha
+
         return null;
     }
 }
