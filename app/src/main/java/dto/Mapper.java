@@ -38,6 +38,17 @@ public class Mapper {
         return dto;
     }
 
+    public static List<Vehicle> vehicleDTOList2VehicleList(List<VehicleDTO> dtoList) throws NullPointerException {
+        List<Vehicle> vehicleList = new ArrayList<>();
+        if (dtoList == null) {
+            return vehicleList;
+        }
+        for (VehicleDTO dto : dtoList) {
+            vehicleList.add(vehicleDTO2Vehicle(dto));
+        }
+        return vehicleList;
+    }
+
     public static Parts partsDTO2Parts(PartsDTO dto) throws NullPointerException {
         Parts mappedData = null;
         mappedData = new Parts(dto.getName());

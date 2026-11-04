@@ -13,7 +13,7 @@ import android.content.Context;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button respectBotton, mapButton, inventoryButton;
+    private Button respectBotton, mapButton, inventoryButton, historyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         respectBotton = findViewById(R.id.respectBotton);
         mapButton = findViewById(R.id.mapButton);
         inventoryButton = findViewById(R.id.inventoryButton);
+        historyButton = findViewById(R.id.historyButton);
 
         respectBotton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InventoryActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        historyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
                 startActivity(intent);
             }
         });

@@ -16,10 +16,10 @@ public class Slot {
     public void setSlotID(String slotID) { this.slotID = slotID; }
     public void setCurrent_vin(String current_vin) { this.current_vin = current_vin; }
 
-    public Integer getRow(){return row;}
-    public String getColumn(){return column;}
+    public Integer getRow() { return row; }
+    public String getColumn() { return column; }
     public String getSlotID() { return slotID; }
-    public String getCurrent_vin() { return current_vin;}
+    public String getCurrent_vin() { return current_vin; }
 
     public boolean isOccupied() {
         return current_vin != null && !current_vin.trim().isEmpty() && !current_vin.equalsIgnoreCase("null");

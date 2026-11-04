@@ -19,16 +19,16 @@ public class MapService {
 
     private static final String TAG = "MapService";
 
-    public List<SlotDTO> fetchMapSlots(Context cxt) {
+    public List<SlotDTO> fetchMapSlots(Context ctx) {
         List<SlotDTO> slotList = new ArrayList<>();
         HttpURLConnection connection = null;
 
         try {
-            URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "slots");
+            URL url = new URL(ApiGetInfo.getApiUrl(ctx) + "slots");
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
+            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(ctx));
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             connection.setConnectTimeout(8000);

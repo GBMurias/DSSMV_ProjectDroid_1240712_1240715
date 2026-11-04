@@ -43,7 +43,6 @@ public class IntakeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intake);
 
-
         etInput = findViewById(R.id.etInput);
         buttonVIN = findViewById(R.id.btnConfirm);
         btnYes = findViewById(R.id.btnYes);
@@ -60,7 +59,6 @@ public class IntakeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String vin = etInput.getText().toString().trim();
 
-
                 if (vin.isEmpty()) {
                     etInput.setError("Please enter a VIN.");
                     return;
@@ -70,7 +68,6 @@ public class IntakeActivity extends AppCompatActivity {
                     VehicleController controller = new VehicleController();
 
                     try {
-
                         Vehicle vehicle = controller.validateVehicleIntake(vin);
                         pendingVehicle = vehicle;
 

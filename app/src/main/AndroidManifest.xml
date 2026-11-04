@@ -39,6 +39,11 @@
             android:exported="false"
             android:theme="@style/Theme.ProjectDroid"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ProjectDroid"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

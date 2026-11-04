@@ -46,7 +46,7 @@ public class MapController {
     }
 
     public void partsFromMap2Inventory (Context ctx, List<Parts> partsList) throws Exception {
-        if (partsList == null) {
+        if (partsList == null || partsList.isEmpty()) {
             throw new IllegalArgumentException("Parts data cannot be null.");
         }
 
