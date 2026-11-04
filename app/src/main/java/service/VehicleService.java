@@ -26,7 +26,6 @@ public class VehicleService {
     public boolean registerIntake(Context ctx, VehicleDTO dto, String infoType) {
         HttpURLConnection connection = null;
 
-
         try {
             JSONObject jsonBody = new JSONObject();
             if(infoType.equals("intakes")) {
@@ -95,7 +94,7 @@ public class VehicleService {
             String query = queryObj.toString();
 
             String docId = getDocumentId(cxt, "intakes", query);
-            Log.d("DEBUG_RESTDB", "Query enviada: " + query + " | DocId encontrado: " + docId);
+            Log.d(TAG, "Query enviada: " + query + " | DocId encontrado: " + docId);
 
             if (docId == null) {
                 return null;
@@ -167,11 +166,11 @@ public class VehicleService {
         HttpURLConnection connection = null;
         try {
             String query = "{\"VIN\":\"" + vin + "\"}";
-            String docId = getDocumentId(cxt, "vehicles", query);
-            Log.d("DEBUG_RESTDB", "Query enviada: " + query + " | DocId encontrado para atualizar parts: " + docId);
+            String docId = getDocumentId(cxt, "intakes", query);
+            Log.d(TAG, "Query sent: " + query + " | Document ID found: " + docId);
 
             if (docId == null) {
-                Log.e(TAG, "Veículo não encontrado para atualizar as peças.");
+                Log.e(TAG, "Vehicle not found (for update).");
                 return false;
             }
 
@@ -192,11 +191,11 @@ public class VehicleService {
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("parts", partsArray);
 
-            URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "vehicles/" + docId);
+            URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "intakes/" + docId);
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("PATCH");
-            Log.d("DEBUG_JSON", "Payload enviado (parts): " + jsonBody.toString());
+            Log.d("DEBUG_JSON", "Payload sent (parts): " + jsonBody.toString());
             connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
@@ -209,11 +208,46 @@ public class VehicleService {
                 os.write(input, 0, input.length);
             }
             int responseCode = connection.getResponseCode();
-            Log.d("DEBUG_RESTDB", "Response Code do PATCH (parts): " + responseCode);
+            Log.d(TAG, "Response Code do PATCH (parts): " + responseCode);
             return (responseCode >= 200 && responseCode < 300);
 
         } catch (Exception e) {
             Log.e(TAG, "Exception while communicating with restdb to update vehicle parts: " + e.getMessage(), e);
+            return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    public boolean deleteVehicle(Context cxt, String vin) {
+        HttpURLConnection connection = null;
+        try {
+            String query = "{\"VIN\":\"" + vin + "\"}";
+            String docId = getDocumentId(cxt, "intakes", query);
+            Log.d(TAG, "Query sent: " + query + " | Document ID found: " + docId);
+
+            if (docId == null) {
+                Log.e(TAG, "Vehicle not found (for delete).");
+                return false;
+            }
+
+            URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "intakes/" + docId);
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("DELETE");
+            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(8000);
+
+            int responseCode = connection.getResponseCode();
+            Log.d(TAG, "DELETE Response Code: " + responseCode);
+            return (responseCode >= 200 && responseCode < 300);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception while communicating with restdb to delete vehicle: " + e.getMessage(), e);
             return false;
         } finally {
             if (connection != null) {
