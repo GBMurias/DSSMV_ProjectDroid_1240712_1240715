@@ -34,7 +34,7 @@ public class Mapper {
 
     public static VehicleDTO vehicle2VehicleDTO(Vehicle vehicle) throws NullPointerException {
         VehicleDTO dto = null;
-        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), StoredPartsList2StoredPartsDTOList(vehicle.getPartsList()));
+        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), storedPartsList2StoredPartsDTOList(vehicle.getPartsList()));
         return dto;
     }
 
@@ -83,7 +83,7 @@ public class Mapper {
         return dto;
     }
 
-    public static List<PartsDTO> StoredPartsList2StoredPartsDTOList(List<Parts> partsList){
+    public static List<PartsDTO> storedPartsList2StoredPartsDTOList(List<Parts> partsList){
         List<PartsDTO> listDTO = new ArrayList<>();
         if (partsList == null) {
             return listDTO;

@@ -1,6 +1,6 @@
 package controller;
 
-import static dto.Mapper.StoredPartsList2StoredPartsDTOList;
+import static dto.Mapper.storedPartsList2StoredPartsDTOList;
 import static dto.Mapper.slotDTOList2SlotList;
 import static dto.Mapper.vehicle2VehicleDTO;
 import static dto.Mapper.vehicleDTO2Vehicle;
@@ -11,7 +11,6 @@ import android.util.Log;
 import java.util.List;
 
 import dto.VehicleDTO;
-import dto.PartsDTO;
 import model.Parts;
 import model.Slot;
 import model.Vehicle;
@@ -46,12 +45,12 @@ public class MapController {
         return slots;
     }
 
-    public void registerFromMap2Inventory (Context ctx, List<Parts> partsList) throws Exception {
+    public void partsFromMap2Inventory (Context ctx, List<Parts> partsList) throws Exception {
         if (partsList == null) {
             throw new IllegalArgumentException("Parts data cannot be null.");
         }
 
-        boolean isRegistered = partsService.registerParts2Inventory(ctx, StoredPartsList2StoredPartsDTOList(partsList));
+        boolean isRegistered = partsService.registerParts2Inventory(ctx, storedPartsList2StoredPartsDTOList(partsList));
         if (!isRegistered) {
             Log.e(TAG, "Error while registering parts in the inventory.");
             throw new RuntimeException("Error while registering vehicle in the data base.");
@@ -72,7 +71,7 @@ public class MapController {
     }
 
     public void moveIntake2History(Context ctx, Vehicle vehicle) throws Exception {
-        if (vehicle == null) {
+        if (vehicle == null || vehicle.getVin() == null) {
             throw new IllegalArgumentException("Vehicle data cannot be null.");
         }
 
@@ -80,6 +79,30 @@ public class MapController {
         if (!isRegistered) {
             Log.e(TAG, "Error while moving intake to History.");
             throw new RuntimeException("Error while moving intake to History.");
+        }
+    }
+
+    public void updateIntakeParts(Context ctx, String vin, List<Parts> partsList) throws Exception {
+        if (partsList == null || partsList.isEmpty()) {
+            throw new IllegalArgumentException("Parts data cannot be null.");
+        }
+
+        boolean isUpdated = vehicleService.updateVehicleParts(ctx, vin, storedPartsList2StoredPartsDTOList(partsList));
+        if (!isUpdated) {
+            Log.e(TAG, "Error while updating vehicle parts.");
+            throw new RuntimeException("Error while updating vehicle parts.");
+        }
+    }
+
+    public void deleteIntake(Context ctx, String vin) throws Exception {
+        if (vin == null){
+            throw new IllegalArgumentException("VIN cannot be null.");
+        }
+
+        boolean isDeleted = vehicleService.deleteVehicle(ctx, vin);
+        if (!isDeleted) {
+            Log.e(TAG, "Error while deleting vehicle.");
+            throw new RuntimeException("Error while deleting vehicle.");
         }
     }
 }
