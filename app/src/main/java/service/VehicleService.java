@@ -1,5 +1,7 @@
 package service;
 
+import static service.ApiGetInfo.getDocumentId;
+
 import android.util.Log;
 import android.content.Context;
 import com.example.projectdroid.MainActivity;
@@ -92,7 +94,7 @@ public class VehicleService {
             queryObj.put("VIN", vin);
             String query = queryObj.toString();
 
-            String docId = ApiGetInfo.getDocumentId(cxt, "intakes", query);
+            String docId = getDocumentId(cxt, "intakes", query);
             Log.d("DEBUG_RESTDB", "Query enviada: " + query + " | DocId encontrado: " + docId);
 
             if (docId == null) {
@@ -159,5 +161,64 @@ public class VehicleService {
             }
         }
         return null;
+    }
+
+    public boolean updateVehicleParts(Context cxt, String vin, List<PartsDTO> partsDtoList) {
+        HttpURLConnection connection = null;
+        try {
+            String query = "{\"VIN\":\"" + vin + "\"}";
+            String docId = getDocumentId(cxt, "vehicles", query);
+            Log.d("DEBUG_RESTDB", "Query enviada: " + query + " | DocId encontrado para atualizar parts: " + docId);
+
+            if (docId == null) {
+                Log.e(TAG, "Veículo não encontrado para atualizar as peças.");
+                return false;
+            }
+
+            JSONArray partsArray = new JSONArray();
+            if (partsDtoList != null) {
+                for (PartsDTO partDto : partsDtoList) {
+                    JSONObject partObj = new JSONObject();
+                    partObj.put("name", partDto.getName());
+                    partObj.put("associatedVIN", partDto.getAssociatedVIN());
+                    partObj.put("associatedModel", partDto.getAssociatedModel());
+                    partObj.put("associatedMake", partDto.getAssociatedMake());
+                    partObj.put("associatedYear", partDto.getAssociatedYear());
+
+                    partsArray.put(partObj);
+                }
+            }
+
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("parts", partsArray);
+
+            URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "vehicles/" + docId);
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PATCH");
+            Log.d("DEBUG_JSON", "Payload enviado (parts): " + jsonBody.toString());
+            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(8000);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+            int responseCode = connection.getResponseCode();
+            Log.d("DEBUG_RESTDB", "Response Code do PATCH (parts): " + responseCode);
+            return (responseCode >= 200 && responseCode < 300);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception while communicating with restdb to update vehicle parts: " + e.getMessage(), e);
+            return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
 }
