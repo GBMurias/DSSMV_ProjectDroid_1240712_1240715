@@ -24,7 +24,7 @@ public class VehicleController {
         if (vehicleDTO == null) {
             throw new RuntimeException("Couldn't get vehicle data. invalid VIN.");
         }
-        if ( vin.trim().length() != 17) {
+        if (vin.trim().length() != 17) {
             throw new IllegalArgumentException("Wrong VIN format - not enough characters.");
         }
         if (vehicleDTO.getYear() > 0 && vehicleDTO.getYear() < 1980) {
@@ -44,5 +44,16 @@ public class VehicleController {
             Log.e(TAG, "Error while registering vehicle in the data base.");
             throw new RuntimeException("Error while registering vehicle in the data base.");
         }
+
+
+    }
+    public Vehicle getVehicle(Context context, String VIN)throws Exception {
+        if(VIN == null){ throw new IllegalArgumentException("VIN cannot be null.");}
+
+        VehicleDTO dto = vehicleService.fetchVehicle(context,VIN);
+
+        Vehicle vehicle = vehicleDTO2Vehicle(dto);
+
+        return vehicle;
     }
 }

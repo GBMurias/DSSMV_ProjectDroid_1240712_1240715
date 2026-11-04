@@ -10,7 +10,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
 
+import dto.PartsDTO;
 import model.Parts;
 import service.ApiGetInfo;
 import dto.VehicleDTO;
@@ -31,7 +34,7 @@ public class VehicleService {
 
             if (dto.getPartsList() != null && !dto.getPartsList().isEmpty()) {
                 JSONArray partsArray = new JSONArray();
-                for (Parts part : dto.getPartsList()) {
+                for (PartsDTO part : dto.getPartsList()) {
                     JSONObject partObj = new JSONObject();
                     partObj.put("name", part.getName());
                     partObj.put("associatedVIN", part.getAssociatedVIN());
@@ -72,5 +75,80 @@ public class VehicleService {
                 connection.disconnect();
             }
         }
+    }
+    public VehicleDTO fetchVehicle(Context cxt, String vin) {
+        HttpURLConnection connection = null;
+        try {
+            JSONObject queryObj = new JSONObject();
+            queryObj.put("VIN", vin);
+            String query = queryObj.toString();
+
+            String docId = ApiGetInfo.getDocumentId(cxt, "intakes", query);
+            Log.d("DEBUG_RESTDB", "Query enviada: " + query + " | DocId encontrado: " + docId);
+
+            if (docId == null) {
+                return null;
+            }
+
+            String encodedQuery = URLEncoder.encode(query, "UTF-8");
+            URL url = new URL(ApiGetInfo.getApiUrl(cxt) + "intakes?q=" + encodedQuery);
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("x-apikey", ApiGetInfo.getApiKey(cxt));
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(8000);
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+                br.close();
+
+                JSONArray jsonArray = new JSONArray(response.toString());
+                if (jsonArray.length() > 0) {
+                    JSONObject vehicleJson = jsonArray.getJSONObject(0);
+
+                    VehicleDTO dto = new VehicleDTO();
+                    if (vehicleJson.has("VIN")) dto.setVin(vehicleJson.getString("VIN"));
+                    if (vehicleJson.has("Make")) dto.setMake(vehicleJson.getString("Make"));
+                    if (vehicleJson.has("Model")) dto.setModel(vehicleJson.getString("Model"));
+                    if (vehicleJson.has("Year")) dto.setYear(vehicleJson.getInt("Year"));
+                    if (vehicleJson.has("is_salvageable")) dto.setSalvageable(vehicleJson.getBoolean("is_salvageable"));
+
+                    if (vehicleJson.has("parts")) {
+                        JSONArray partsArray = vehicleJson.getJSONArray("parts");
+                        List<PartsDTO> partsList = new java.util.ArrayList<>();
+                        for (int i = 0; i < partsArray.length(); i++) {
+                            JSONObject partObj = partsArray.getJSONObject(i);
+                            PartsDTO part = new PartsDTO();
+                            if (partObj.has("name")) part.setName(partObj.getString("name"));
+                            if (partObj.has("associatedVIN")) part.setAssociatedVIN(partObj.getString("associatedVIN"));
+                            if (partObj.has("associatedModel")) part.setAssociatedModel(partObj.getString("associatedModel"));
+                            if (partObj.has("associatedMake")) part.setAssociatedMake(partObj.getString("associatedMake"));
+                            if (partObj.has("associatedYear")) part.setAssociatedYear(partObj.getInt("associatedYear"));
+                            partsList.add(part);
+                        }
+                        dto.setPartsList(partsList);
+                    }
+
+                    return dto;
+                }
+            } else {
+                Log.e(TAG, "Erro ao procurar veículo pelo VIN, código HTTP: " + responseCode);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ao procurar veículo: " + e.getMessage(), e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return null;
     }
 }

@@ -17,6 +17,9 @@ public class Mapper {
 
     public static List<Slot> slotDTOList2SlotList(List<SlotDTO> dtoList) throws NullPointerException {
         List<Slot> slotList = new ArrayList<>();
+        if (dtoList == null) {
+            return slotList;
+        }
         for (SlotDTO dto : dtoList) {
             slotList.add(slotDTO2Slot(dto));
         }
@@ -25,13 +28,13 @@ public class Mapper {
 
     public static Vehicle vehicleDTO2Vehicle(VehicleDTO dto) throws NullPointerException {
         Vehicle mappedData = null;
-        mappedData = new Vehicle(dto.getVin(), dto.getMake(), dto.getModel(), dto.getYear(), dto.isSalvageable(), dto.getPartsList());
+        mappedData = new Vehicle(dto.getVin(), dto.getMake(), dto.getModel(), dto.getYear(), dto.isSalvageable(), partsDTOList2PartsList(dto.getPartsList()));
         return mappedData;
     }
 
     public static VehicleDTO vehicle2VehicleDTO(Vehicle vehicle) throws NullPointerException {
         VehicleDTO dto = null;
-        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), vehicle.getPartsList());
+        dto = new VehicleDTO(vehicle.getVin(), vehicle.getMake(), vehicle.getModel(), vehicle.getYear(), vehicle.getStatus(), partsList2PartsDTOList(vehicle.getPartsList()));
         return dto;
     }
 
@@ -43,6 +46,9 @@ public class Mapper {
 
     public static List<Parts> partsDTOList2PartsList(List<PartsDTO> dtoList) throws NullPointerException {
         List<Parts> partsList = new ArrayList<>();
+        if (dtoList == null) {
+            return partsList;
+        }
         for (PartsDTO dto : dtoList){
             partsList.add(partsDTO2Parts(dto));
         }
@@ -57,14 +63,35 @@ public class Mapper {
 
     public static List<Parts> storedPartsDTOList2StoredPartsList(List<PartsDTO> dtoList) throws NullPointerException {
         List<Parts> storedPartsList = new ArrayList<>();
+        if (dtoList == null) {
+            return storedPartsList;
+        }
         for (PartsDTO dto : dtoList){
             storedPartsList.add(storedPartsDTO2StoredParts(dto));
         }
         return storedPartsList;
     }
+
     public static SlotDTO Slot2slotDTO(Slot x){
         Slot mapped_data = x;
         SlotDTO y = new SlotDTO(x.getRow(),x.getColumn(),x.getCurrent_vin());
         return y;
     }
+
+    public static PartsDTO parts2PartsDTO(Parts parts){
+        PartsDTO dto = new PartsDTO(parts.getName(),parts.getAssociatedVIN(),parts.getAssociatedModel(), parts.getAssociatedMake(), parts.getAssociatedYear());
+        return dto;
+    }
+
+    public static List<PartsDTO> partsList2PartsDTOList(List<Parts> partslist){
+        List<PartsDTO> listDTO = new ArrayList<>();
+        if (partslist == null) {
+            return listDTO;
+        }
+        for(Parts parts : partslist){
+            listDTO.add(parts2PartsDTO(parts));
+        }
+        return listDTO;
+    }
 }
+
