@@ -21,33 +21,41 @@ import dto.VehicleDTO;
 public class VehicleService {
     private static final String TAG = "VehicleService";
 
-    public boolean registerIntake(Context ctx, VehicleDTO dto) {
+    public boolean registerIntake(Context ctx, VehicleDTO dto, String infoType) {
         HttpURLConnection connection = null;
+
 
         try {
             JSONObject jsonBody = new JSONObject();
-            jsonBody.put("VIN", dto.getVin());
-            jsonBody.put("Make", dto.getMake());
-            jsonBody.put("Model", dto.getModel());
-            jsonBody.put("Year", dto.getYear());
-            jsonBody.put("is_salvageable", dto.isSalvageable());
+            if(infoType.equals("intakes")) {
+                jsonBody.put("VIN", dto.getVin());
+                jsonBody.put("Make", dto.getMake());
+                jsonBody.put("Model", dto.getModel());
+                jsonBody.put("Year", dto.getYear());
+                jsonBody.put("is_salvageable", dto.isSalvageable());
 
-            if (dto.getPartsList() != null && !dto.getPartsList().isEmpty()) {
-                JSONArray partsArray = new JSONArray();
-                for (PartsDTO part : dto.getPartsList()) {
-                    JSONObject partObj = new JSONObject();
-                    partObj.put("name", part.getName());
-                    partObj.put("associatedVIN", part.getAssociatedVIN());
-                    partObj.put("associatedModel", part.getAssociatedModel());
-                    partObj.put("associatedMake", part.getAssociatedMake());
-                    partObj.put("associatedYear", part.getAssociatedYear());
-                    partsArray.put(partObj);
+                if (dto.getPartsList() != null && !dto.getPartsList().isEmpty()) {
+                    JSONArray partsArray = new JSONArray();
+                    for (PartsDTO part : dto.getPartsList()) {
+                        JSONObject partObj = new JSONObject();
+                        partObj.put("name", part.getName());
+                        partObj.put("associatedVIN", part.getAssociatedVIN());
+                        partObj.put("associatedModel", part.getAssociatedModel());
+                        partObj.put("associatedMake", part.getAssociatedMake());
+                        partObj.put("associatedYear", part.getAssociatedYear());
+                        partsArray.put(partObj);
+                    }
+                    jsonBody.put("parts", partsArray);
                 }
-                jsonBody.put("parts", partsArray);
+            } else if(infoType.equals("history")){
+                jsonBody.put("VIN", dto.getVin());
+                jsonBody.put("Make", dto.getMake());
+                jsonBody.put("Model", dto.getModel());
+                jsonBody.put("Year", dto.getYear());
             }
 
             URL url = new URL(
-                    ApiGetInfo.getApiUrl(ctx) + "intakes"
+                    ApiGetInfo.getApiUrl(ctx) + infoType
             );
 
             connection = (HttpURLConnection) url.openConnection();
@@ -76,6 +84,7 @@ public class VehicleService {
             }
         }
     }
+
     public VehicleDTO fetchVehicle(Context cxt, String vin) {
         HttpURLConnection connection = null;
         try {

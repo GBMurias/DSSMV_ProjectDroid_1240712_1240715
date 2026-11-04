@@ -2,6 +2,7 @@ package controller;
 
 import static dto.Mapper.StoredPartsList2StoredPartsDTOList;
 import static dto.Mapper.slotDTOList2SlotList;
+import static dto.Mapper.vehicle2VehicleDTO;
 import static dto.Mapper.vehicleDTO2Vehicle;
 
 import android.content.Context;
@@ -68,5 +69,17 @@ public class MapController {
         Vehicle vehicle = vehicleDTO2Vehicle(dto);
 
         return vehicle;
+    }
+
+    public void moveIntake2History(Context ctx, Vehicle vehicle) throws Exception {
+        if (vehicle == null) {
+            throw new IllegalArgumentException("Vehicle data cannot be null.");
+        }
+
+        boolean isRegistered = vehicleService.registerIntake(ctx, vehicle2VehicleDTO(vehicle), "history");
+        if (!isRegistered) {
+            Log.e(TAG, "Error while moving intake to History.");
+            throw new RuntimeException("Error while moving intake to History.");
+        }
     }
 }

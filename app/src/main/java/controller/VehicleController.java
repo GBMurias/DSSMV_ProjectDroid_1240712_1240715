@@ -39,14 +39,13 @@ public class VehicleController {
             throw new IllegalArgumentException("Vehicle data cannot be null.");
         }
 
-        boolean isRegistered = vehicleService.registerIntake(ctx, vehicle2VehicleDTO(vehicle));
+        boolean isRegistered = vehicleService.registerIntake(ctx, vehicle2VehicleDTO(vehicle), "intakes");
         if (!isRegistered) {
             Log.e(TAG, "Error while registering vehicle in the data base.");
             throw new RuntimeException("Error while registering vehicle in the data base.");
         }
-
-
     }
+
     public Vehicle getVehicle(Context context, String VIN)throws Exception {
         if(VIN == null){ throw new IllegalArgumentException("VIN cannot be null.");}
 
