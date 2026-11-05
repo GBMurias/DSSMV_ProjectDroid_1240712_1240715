@@ -1,10 +1,13 @@
 package com.example.projectdroid;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -38,6 +41,7 @@ public class MapActivity extends AppCompatActivity {
     private String currentClickedSlotId = "";   // slot clicado no modo "consulta"
     private String vehicleModel = "";
     private String origin;
+    private boolean intakeRegistered = false;   // true depois de o intake ter ocupado um slot
 
     // --- Popup de confirmação (Intake) / slot vazio ---
     private CardView cardPopup;
@@ -62,6 +66,9 @@ public class MapActivity extends AppCompatActivity {
     private ListView listViewParts;
     private Button btnCancelParts;
     private Button btnAddPart;
+
+    // --- Botão "Voltar ao menu" (criado por código, só depois de registar o intake) ---
+    private Button btnBackToMain;
 
     // ==========================================
     // 2. CICLO DE VIDA
@@ -156,6 +163,12 @@ public class MapActivity extends AppCompatActivity {
         Slot clickedSlot = findSlotById(slotIdName);
 
         if ("IntakeAct".equals(origin)) {
+            // O intake já foi registado: não deixa ocupar mais slots com o mesmo veículo
+            if (intakeRegistered) {
+                showToast("Intake já registado. Usa o botão para voltar ao menu.");
+                return;
+            }
+
             if (clickedSlot != null && clickedSlot.isOccupied()) {
                 showIntakeOccupiedPopup(slotIdName);
                 return;
@@ -284,6 +297,7 @@ public class MapActivity extends AppCompatActivity {
                     public void run() {
                         if (sucess) {
                             showToast("Lugar " + selectedSlotId + " ocupado com sucesso!");
+                            onIntakeSlotRegistered();
                         } else {
                             showToast("Erro ao atualizar o slot na base de dados.");
                         }
@@ -292,6 +306,13 @@ public class MapActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    /** Chamado na UI thread quando o intake acabou de ocupar um slot: recarrega o mapa e mostra o botão de voltar. */
+    private void onIntakeSlotRegistered() {
+        intakeRegistered = true;
+        loadMapData();          // volta a carregar o mapa, já com o veículo no slot
+        showBackToMainButton();
     }
 
     // ------------------ Esvaziar slot (enviar veículo para history) ------------------
@@ -310,8 +331,123 @@ public class MapActivity extends AppCompatActivity {
             return;
         }
 
-        cardParkingOptions.setVisibility(View.GONE);
-        sendVehicleToHistoryInBackground(slotToEmpty, vin);
+        checkPartsBeforeEmptyingInBackground(slotToEmpty, vin);
+    }
+
+    /**
+     * Vai buscar o veículo (fora da UI thread) para saber se ainda tem peças:
+     * - sem peças  -> esvazia o slot logo
+     * - com peças  -> pergunta se quer enviar todas as peças para o inventory
+     */
+    private void checkPartsBeforeEmptyingInBackground(final Slot slot, final String vin) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MapController controller = new MapController();
+                    Vehicle vehicle = controller.getVehicle(MapActivity.this, vin);
+                    List<Parts> parts = vehicle.getPartsList();
+                    final int partsCount = (parts == null) ? 0 : parts.size();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (partsCount == 0) {
+                                cardParkingOptions.setVisibility(View.GONE);
+                                sendVehicleToHistoryInBackground(slot, vin);
+                            } else {
+                                showSendAllPartsDialog(slot, vin, partsCount);
+                            }
+                        }
+                    });
+
+                } catch (final Exception e) {
+                    Log.e("MapActivity", "Error checking vehicle parts", e);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToastLong("Erro: " + e.getMessage());
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    /** Aviso: o veículo ainda tem peças. Se confirmar, vão todas para o inventory e o slot é esvaziado. */
+    private void showSendAllPartsDialog(final Slot slot, final String vin, int partsCount) {
+        new AlertDialog.Builder(MapActivity.this)
+                .setTitle("Veículo com peças")
+                .setMessage("Este veículo ainda tem " + partsCount + " peça(s).\n"
+                        + "Queres enviar todas as peças para o inventory e esvaziar o slot?")
+                .setCancelable(false)
+                .setPositiveButton("Enviar tudo", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cardParkingOptions.setVisibility(View.GONE);
+                        sendAllPartsAndEmptySlotInBackground(slot, vin);
+                    }
+                })
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Não faz nada: o popup de opções do slot continua aberto
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * 1. passa TODAS as peças para o inventory, 2. deixa o veículo sem peças,
+     * 3. envia o veículo para history e esvazia o slot.
+     */
+    private void sendAllPartsAndEmptySlotInBackground(final Slot slot, final String vin) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MapController controller = new MapController();
+                    Vehicle vehicle = controller.getVehicle(MapActivity.this, vin);
+
+                    List<Parts> toInventory = new ArrayList<>();
+                    List<Parts> vehicleParts = vehicle.getPartsList();
+                    if (vehicleParts != null) {
+                        for (Parts p : vehicleParts) {
+                            toInventory.add(new Parts(p.getName(), vehicle.getVin(),
+                                    vehicle.getModel(), vehicle.getMake(), vehicle.getYear()));
+                        }
+                    }
+
+                    if (!toInventory.isEmpty()) {
+                        // a) Adicionar ao inventário
+                        controller.partsFromMap2Inventory(MapActivity.this, toInventory);
+
+                        // b) Só depois deixar o veículo sem peças
+                        controller.updateIntakeParts(MapActivity.this, vin, new ArrayList<Parts>());
+                    }
+
+                    // c) Veículo -> history e slot vazio
+                    scrapVehicleAndEmptySlot(controller, slot, vin);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            onVehicleScrapped(vin);
+                        }
+                    });
+
+                } catch (final Exception e) {
+                    Log.e("MapActivity", "Error sending all parts to inventory", e);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToastLong("Erro: " + e.getMessage());
+                            loadMapData();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     private void sendVehicleToHistoryInBackground(final Slot slot, final String vin) {
@@ -588,12 +724,7 @@ public class MapActivity extends AppCompatActivity {
 
         Slot selectedSlot = findSlotById(clickedSlotId);
 
-        if (selectedSlot == null) {
-            showToast("No information found for this slot. ");
-            return;
-        }
-
-        if (selectedSlot.isOccupied()) {
+        if (selectedSlot != null && selectedSlot.isOccupied()) {
             showOccupiedSlotOptions(clickedSlotId, selectedSlot.getCurrent_vin());
         } else {
             showEmptySlotPopup();
@@ -713,6 +844,41 @@ public class MapActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    // --- Botão: voltar ao MainActivity (depois de registar o intake) ---
+
+    private void showBackToMainButton() {
+        if (btnBackToMain != null) {
+            btnBackToMain.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        btnBackToMain = new Button(MapActivity.this);
+        btnBackToMain.setText("Voltar ao menu");
+        btnBackToMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goBackToMain();
+            }
+        });
+
+        int margin = (int) (24 * getResources().getDisplayMetrics().density);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        params.setMargins(0, 0, 0, margin);
+
+        // addContentView põe o botão por cima do layout, sem mexer no activity_map.xml
+        addContentView(btnBackToMain, params);
+    }
+
+    private void goBackToMain() {
+        Intent intent = new Intent(MapActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 
     // ==========================================
