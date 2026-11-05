@@ -78,11 +78,11 @@ public class PartsService {
         HttpURLConnection connection = null;
         try {
             JSONArray partsArray = new JSONArray();
-            JSONObject part = new JSONObject();
             for(PartsDTO dto : dtoList) {
+                JSONObject part = new JSONObject();
                 part.put("name", dto.getName());
                 part.put("associatedVIN", dto.getAssociatedVIN());
-                part.put("asscoiatedModel", dto.getAssociatedModel());
+                part.put("associatedModel", dto.getAssociatedModel());
                 part.put("associatedMake", dto.getAssociatedMake());
                 part.put("associatedYear", dto.getAssociatedYear());
                 partsArray.put(part);
