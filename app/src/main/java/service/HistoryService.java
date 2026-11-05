@@ -17,7 +17,7 @@ import java.util.List;
 import dto.SlotDTO;
 import dto.VehicleDTO;
 
-public class HistoryService {
+public class    HistoryService {
 
     private static final String TAG = "HistoryService";
 
