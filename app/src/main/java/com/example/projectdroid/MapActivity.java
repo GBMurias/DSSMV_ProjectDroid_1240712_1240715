@@ -265,7 +265,7 @@ public class MapActivity extends AppCompatActivity {
     // 5. LÓGICA DOS HANDLERS
     // ==========================================
 
-    // ------------------ Intake: confirmar slot ------------------
+    // ---------------- -- Intake: confirmar slot ------------------
 
     private void onConfirmIntakeClicked() {
         if (selectedSlotId == null || selectedSlotId.isEmpty()) {
@@ -637,15 +637,15 @@ public class MapActivity extends AppCompatActivity {
     private void onVehicleScrapped(String vin) {
         currentSelectedVehicle = null;
         cardPartsPopup.setVisibility(View.GONE);
+        cardParkingOptions.setVisibility(View.GONE);
         showToastLong("Veículo (VIN: " + vin + ") removido do slot e enviado para o inventory!");
         loadMapData();
     }
 
-    /** Cancelou o abate: nada foi removido, volta ao menu com Empty Slot / Remove Pieces. */
+    /** Cancelou o abate: nada foi removido, os popups continuam como estavam. */
     private void onScrapCancelled() {
         listViewParts.clearChoices();
-        cardPartsPopup.setVisibility(View.GONE);
-        cardParkingOptions.setVisibility(View.VISIBLE);
+        ((ArrayAdapter<?>) listViewParts.getAdapter()).notifyDataSetChanged();
     }
 
     // ==========================================
@@ -733,7 +733,6 @@ public class MapActivity extends AppCompatActivity {
 
     private void showOccupiedSlotOptions(String slotId, String vin) {
         String mensagem = "Slot: " + slotId
-                + "\nVehicle Identification Number: " + vin
                 + "\nStatus: Occupied";
 
         txtVehicleDescription.setText(mensagem);
@@ -820,7 +819,7 @@ public class MapActivity extends AppCompatActivity {
 
         listViewParts.setAdapter(adapter);
 
-        cardParkingOptions.setVisibility(View.GONE);
+        // cardParkingOptions fica visível por trás do popup de peças
         cardPartsPopup.setVisibility(View.VISIBLE);
     }
 
