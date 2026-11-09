@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.List;
 import static service.ApiGetInfo.getDocumentId;
+import static handler.JsonHandler.deserializeMap;
+import static handler.JsonHandler.serializeSlotCurrentVinField;
 import dto.SlotDTO;
 import android.content.Context;
 import android.util.Log;
@@ -42,18 +44,8 @@ public class MapService {
                 while ((line = br.readLine()) != null) {
                     response.append(line.trim());
                 }
+                slotList = deserializeMap(response.toString());
 
-                JSONArray jsonArray = new JSONArray(response.toString());
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject obj = jsonArray.getJSONObject(i);
-
-                    Integer row = obj.optInt("row", 0);
-                    String column = obj.optString("column", "");
-                    String currentVin = obj.optString("current_vin", "");
-
-                    slotList.add(new SlotDTO(row, column, currentVin));
-                }
             } else {
                 Log.e(TAG, "Error while getting slots, HTTP code: " + responseCode);
             }
@@ -72,9 +64,7 @@ public class MapService {
     public boolean registerVIN2Slot(Context cxt, SlotDTO tempdto){
         HttpURLConnection connection = null;
         try {
-
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("current_vin", tempdto.getCurrent_vin());
+            JSONObject jsonBody = serializeSlotCurrentVinField(tempdto);
 
             String query = "{\"row\":" + tempdto.getRow() + ",\"column\":\"" + tempdto.getColumn() + "\"}";
             String docId = getDocumentId(cxt, "slots", query);

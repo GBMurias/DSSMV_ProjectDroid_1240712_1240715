@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import dto.VehicleDTO;
+import static handler.JsonHandler.deserializeNHTSA;
 
 public class NHTSAService {
     private static final String TAG = "NHTSAService";
@@ -37,18 +38,9 @@ public class NHTSAService {
 
                 if (resultsArray.length() > 0) {
                     JSONObject vehicleData = resultsArray.getJSONObject(0);
-
-                    String make = vehicleData.optString("Make", "Unknown");
-                    String model = vehicleData.optString("Model", "Unknown");
-                    String yearStr = vehicleData.optString("ModelYear", "0");
-
-                    int year = 0;
-                    try {
-                        year = Integer.parseInt(yearStr);
-                    } catch (NumberFormatException ignored) {}
-
-                    if (!make.isEmpty() && !make.equals("Unknown")) {
-                        return new VehicleDTO(vin, make, model, year);
+                    VehicleDTO dto = deserializeNHTSA(vehicleData, vin);
+                    if (!dto.getMake().isEmpty() && !dto.getMake().equals("Unknown")) {
+                        return dto;
                     }
                 }
             }

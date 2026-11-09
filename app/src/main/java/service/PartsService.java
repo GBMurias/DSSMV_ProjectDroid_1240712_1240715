@@ -5,7 +5,8 @@ import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import static handler.JsonHandler.deserializeParts;
+import static handler.JsonHandler.serializeParts;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -41,23 +42,7 @@ public class PartsService {
                 }
 
                 JSONArray jsonArray = new JSONArray(response.toString());
-                if (infoType.equals("parts")) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject obj = jsonArray.getJSONObject(i);
-                        String partName = obj.getString("name");
-                        partsList.add(new PartsDTO(partName));
-                    }
-                } else if (infoType.equals("inventory")) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject obj = jsonArray.getJSONObject(i);
-                        String partName = obj.getString("name");
-                        String associatedVIN = obj.getString("associatedVIN");
-                        String associatedModel = obj.getString("associatedModel");
-                        String associatedMake = obj.getString("associatedMake");
-                        Integer associatedYear = obj.getInt("associatedYear");
-                        partsList.add(new PartsDTO(partName, associatedVIN, associatedModel, associatedMake, associatedYear));
-                    }
-                }
+                partsList = deserializeParts(jsonArray, infoType);
 
             } else {
                 Log.e(TAG, "Error while fetching info, HTTP code: " + responseCode);
@@ -77,17 +62,7 @@ public class PartsService {
     public boolean registerParts2Inventory(Context ctx, List<PartsDTO> dtoList){
         HttpURLConnection connection = null;
         try {
-            JSONArray partsArray = new JSONArray();
-            for(PartsDTO dto : dtoList) {
-                JSONObject part = new JSONObject();
-                part.put("name", dto.getName());
-                part.put("associatedVIN", dto.getAssociatedVIN());
-                part.put("associatedModel", dto.getAssociatedModel());
-                part.put("associatedMake", dto.getAssociatedMake());
-                part.put("associatedYear", dto.getAssociatedYear());
-                partsArray.put(part);
-            }
-
+            JSONArray partsArray = serializeParts(dtoList);
             URL url = new URL(ApiGetInfo.getApiUrl(ctx) + "inventory");
 
             connection = (HttpURLConnection) url.openConnection();

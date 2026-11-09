@@ -257,6 +257,8 @@ public class MapActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 onAddPartsClicked();
+                cardPartsPopup.setVisibility(View.GONE);
+                cardParkingOptions.setVisibility(View.GONE);
             }
         });
     }
