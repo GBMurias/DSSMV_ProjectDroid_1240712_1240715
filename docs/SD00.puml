@@ -1,0 +1,36 @@
+@startuml
+title SD00 - Navigate the Main Menu
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":MainActivity" as Main
+participant ":IntakeActivity" as Intake
+participant ":MapActivity" as Map
+participant ":InventoryActivity" as Inv
+participant ":HistoryActivity" as Hist
+
+activate User
+
+User -> Main: opens the application
+Main --> User: shows the main menu (register intake, parking map, inventory, history)
+
+alt selects "register intake"
+    User -> Main: taps the intake button
+    Main --> Intake**: startActivity(intent)
+    Intake --> User: shows the intake screen (see SD01 and SD02)
+else selects "parking map"
+    User -> Main: taps the map button
+    Main --> Map**: startActivity(intent)
+    Map --> User: shows the parking map (see SD04)
+else selects "inventory"
+    User -> Main: taps the inventory button
+    Main --> Inv**: startActivity(intent)
+    Inv --> User: shows the parts inventory (see SD07)
+else selects "history"
+    User -> Main: taps the history button
+    Main --> Hist**: startActivity(intent)
+    Hist --> User: shows the scrapped vehicles history (see SD08)
+end
+
+@enduml

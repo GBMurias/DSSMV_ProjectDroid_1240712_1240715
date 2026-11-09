@@ -1,0 +1,49 @@
+@startuml
+title SD07 - Consult Parts Inventory
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":InventoryActivity" as View
+participant "InventoryController" as Ctrl
+participant ":PartsService" as PartsSvc
+participant "restdb API" as DB
+participant "Mapper" as Mapper
+participant "adapter:InventoryAdapter" as Adapter
+participant "part:Parts" as Part
+
+activate User
+
+User -> View: asks to consult the inventory
+
+View -> Ctrl: processInventoryInfo(activity, callback)
+note right of Ctrl: runs in a background thread, callbacks are posted to the UI thread
+Ctrl -> PartsSvc: fetchPartsInfo(activity, "inventory")
+PartsSvc -> DB: GET /inventory
+DB --> PartsSvc: parts (json)
+PartsSvc -> PartsSvc: deserializeParts(jsonArray, "inventory")
+PartsSvc --> PartsSvc: partsDTOList
+PartsSvc --> Ctrl: partsDTOList
+
+alt no parts found
+    Ctrl --> View: onError("No parts were found in the inventory.")
+    View --> User: shows error message
+else parts found
+    Ctrl -> Mapper: storedPartsDTOList2StoredPartsList(partsDTOList)
+    Mapper --> Ctrl: partsList
+    Ctrl --> View: onSuccess(partsList)
+    View --> Adapter**: create(context, partsList)
+    View --> User: shows the list of parts (name and associated VIN)
+
+    User -> View: taps a part
+    View -> Adapter: getItem(position)
+    Adapter --> View: part
+    View -> Part: getAssociatedMake(), getAssociatedModel(), getAssociatedYear()
+    Part --> View: make, model, year
+    View --> User: shows a popup with the make, model and year of the vehicle the part came from
+
+    User -> View: closes the popup
+    View --> User: hides the popup
+end
+
+@enduml

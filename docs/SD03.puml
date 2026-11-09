@@ -1,0 +1,76 @@
+@startuml
+title SD03 - Assign Vehicle to a Parking Slot (after intake)
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":MapActivity" as View
+participant "MapController" as Ctrl
+participant ":MapService" as MapSvc
+participant "Mapper" as Mapper
+participant "slot:Slot" as Slot
+participant "ApiGetInfo" as Api
+participant "restdb API" as DB
+
+activate User
+
+note over User, View: MapActivity is opened by IntakeActivity with extras Where="IntakeAct", VIN and Modelo (end of SD02)
+
+View -> View: readIntentExtras()
+View --> View: origin, vehicleModel
+
+View -> Ctrl: processMapSlots(activity, callback)
+Ctrl -> MapSvc: fetchMapSlots(activity)
+MapSvc -> DB: GET /slots
+DB --> MapSvc: slots (json)
+MapSvc --> Ctrl: slotDTOList
+Ctrl -> Mapper: slotDTOList2SlotList(slotDTOList)
+Mapper --> Ctrl: slotList
+Ctrl --> View: onSuccess(slotList)
+View -> View: updateMapUI(slotList)
+View --> View: shows a car icon on the occupied slots
+View --> User: shows the parking map
+
+User -> View: taps a slot
+
+alt intake slot already registered
+    View --> User: shows "Intake registered. You can return to the Main Menu."
+else slot is occupied
+    View --> User: shows "This slot is occupied!" with a Back option
+else slot is free
+    View --> User: shows the vehicle model and the slot and asks for confirmation
+
+    User -> View: confirms the slot
+
+    alt no VIN received from the intake
+        View --> User: shows "Error: No VIN was received!"
+    else VIN received
+        View --> Slot**: create(row, column, vin)
+        View -> Ctrl: registerVIN2Slot(activity, slot, callback)
+        Ctrl -> Mapper: Slot2slotDTO(slot)
+        Mapper --> Ctrl: slotDTO
+        Ctrl -> MapSvc: registerVIN2Slot(activity, slotDTO)
+        MapSvc -> MapSvc: serializeSlotCurrentVinField(slotDTO)
+        MapSvc --> MapSvc: jsonBody
+        MapSvc -> Api: getDocumentId(ctx, "slots", {row, column})
+        Api -> DB: GET /slots?q={row, column}
+        DB --> Api: matching slot (json)
+        Api --> MapSvc: docId (null if not found)
+
+        alt slot not found
+            MapSvc --> Ctrl: false
+            Ctrl --> View: onError("Error while updating the slot in the database.")
+            View --> User: shows error message
+        else slot found
+            MapSvc -> DB: PATCH /slots/{docId} (current_vin)
+            DB --> MapSvc: HTTP response code
+            MapSvc --> Ctrl: true if code is 2xx, otherwise false
+            Ctrl --> View: onSuccess()
+            View -> View: onIntakeSlotRegistered()
+            View --> View: intakeRegistered = true, reloads the map and shows "Back to Main Menu" button
+            View --> User: informs "Slot successfully occupied" and shows the updated map
+        end
+    end
+end
+
+@enduml

@@ -1,0 +1,128 @@
+@startuml
+title SD06 - Empty a Slot and Send the Vehicle to History
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":MapActivity" as View
+participant "MapController" as Ctrl
+participant ":VehicleService" as VehicleSvc
+participant ":PartsService" as PartsSvc
+participant ":MapService" as MapSvc
+participant "Mapper" as Mapper
+participant "slot:Slot" as Slot
+participant "ApiGetInfo" as Api
+participant "restdb API" as DB
+
+activate User
+
+note over User, View: the map is already loaded and the operator tapped an occupied slot (see SD04)
+
+User -> View: asks to empty the spot
+
+View -> View: findSlotById(currentClickedSlotId)
+View --> View: slotToEmpty
+
+alt slot not found or already empty
+    View --> User: shows "Slot not found or already empty."
+else slot has no VIN
+    View --> User: shows "Error: This slot is empty."
+else slot is occupied
+    View -> Ctrl: getVehicle(activity, vin, callback)
+    Ctrl -> Ctrl: fetchVehicle(activity, vin)
+    note right of Ctrl: same interaction as SD05 (VehicleService.fetchVehicle + Mapper.vehicleDTO2Vehicle)
+    Ctrl --> Ctrl: vehicle
+    Ctrl --> View: onSuccess(vehicle)
+
+    alt error while fetching the vehicle
+        Ctrl --> View: onError(message)
+        View --> User: shows error message
+    else vehicle has no parts
+        View -> Ctrl: sendVehicleToHistory(activity, slot, vin, callback)
+        Ctrl -> Ctrl: scrapVehicleAndEmptySlot(activity, slot, vin)
+        note right of Ctrl: see "scrapVehicleAndEmptySlot" below
+        Ctrl --> View: onSuccess()
+        View --> User: informs the vehicle was sent to history and updates the map (see SD04)
+    else vehicle still has parts
+        View --> User: asks if all the parts should be sent to the inventory and the slot emptied
+
+        alt operator cancels
+            User -> View: cancels
+            View --> User: closes the dialog
+        else operator confirms
+            User -> View: confirms "Send all"
+            View -> Ctrl: sendAllPartsAndEmptySlot(activity, slot, vin, callback)
+            Ctrl -> Ctrl: fetchVehicle(activity, vin)
+            Ctrl --> Ctrl: vehicle
+
+            loop for each part of the vehicle
+                Ctrl -> Ctrl: creates a stored part (name, vin, model, make, year)
+                Ctrl --> Ctrl: part
+            end
+
+            alt there are parts to send
+                Ctrl -> Mapper: storedPartsList2StoredPartsDTOList(parts)
+                Mapper --> Ctrl: partsDTOList
+                Ctrl -> PartsSvc: registerParts2Inventory(activity, partsDTOList)
+                PartsSvc -> DB: POST /inventory (parts)
+                DB --> PartsSvc: HTTP response code
+                PartsSvc --> Ctrl: true if code is 2xx, otherwise false
+
+                Ctrl -> VehicleSvc: updateVehicleParts(activity, vin, empty list)
+                VehicleSvc -> Api: getDocumentId(ctx, "intakes", {VIN})
+                Api -> DB: GET /intakes?q={VIN}
+                DB --> Api: matching intake (json)
+                Api --> VehicleSvc: docId
+                VehicleSvc -> DB: PATCH /intakes/{docId} (parts = [])
+                DB --> VehicleSvc: HTTP response code
+                VehicleSvc --> Ctrl: true if code is 2xx, otherwise false
+            end
+
+            Ctrl -> Ctrl: scrapVehicleAndEmptySlot(activity, slot, vin)
+            note right of Ctrl: see "scrapVehicleAndEmptySlot" below
+            Ctrl --> View: onSuccess()
+            View --> User: informs the vehicle was removed from the slot and sent to inventory, and updates the map (see SD04)
+        end
+    end
+end
+
+group scrapVehicleAndEmptySlot(slot, vin)
+    Ctrl -> Ctrl: fetchVehicle(activity, vin)
+    Ctrl --> Ctrl: vehicle
+
+    Ctrl -> Mapper: vehicle2VehicleDTO(vehicle)
+    Mapper --> Ctrl: vehicleDTO
+    Ctrl -> VehicleSvc: registerIntake(activity, vehicleDTO, "history")
+    VehicleSvc -> DB: POST /history (vehicleDTO)
+    DB --> VehicleSvc: HTTP response code
+    VehicleSvc --> Ctrl: true if code is 2xx, otherwise false
+    note right of Ctrl: if false, throws "Error while moving intake to History."
+
+    Ctrl -> VehicleSvc: deleteVehicle(activity, vin)
+    VehicleSvc -> Api: getDocumentId(ctx, "intakes", {VIN})
+    Api -> DB: GET /intakes?q={VIN}
+    DB --> Api: matching intake (json)
+    Api --> VehicleSvc: docId
+    VehicleSvc -> DB: DELETE /intakes/{docId}
+    DB --> VehicleSvc: HTTP response code
+    VehicleSvc --> Ctrl: true if code is 2xx, otherwise false
+    note right of Ctrl: if false, throws "Error while deleting vehicle."
+
+    Ctrl -> Slot: setCurrent_vin("")
+    Slot --> Ctrl: ok
+    Ctrl -> Mapper: Slot2slotDTO(slot)
+    Mapper --> Ctrl: slotDTO
+    Ctrl -> MapSvc: registerVIN2Slot(activity, slotDTO)
+    MapSvc -> Api: getDocumentId(ctx, "slots", {row, column})
+    Api -> DB: GET /slots?q={row, column}
+    DB --> Api: matching slot (json)
+    Api --> MapSvc: docId
+    MapSvc -> DB: PATCH /slots/{docId} (current_vin = "")
+    DB --> MapSvc: HTTP response code
+    MapSvc --> Ctrl: true if code is 2xx, otherwise false
+    note right of Ctrl: if false, throws "Nao foi possivel esvaziar o slot."
+end
+
+note over Ctrl, View: on any exception the controller calls onError(message) and the view shows "Error: message" and reloads the map
+
+@enduml

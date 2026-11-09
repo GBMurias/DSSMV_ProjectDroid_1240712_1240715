@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+
+actor "Worker" as Worker
+
+usecase "US01 - Register vehicle" as US01
+usecase "US02 - Allocate vehicle to slot" as US02
+usecase "US03 - Register salvageable parts in vehicle" as US03
+usecase "US04 - Check map" as US04
+usecase "US05 - Empty a slot" as US05
+usecase "US06 - Transfer parts from vehicle to Inventory" as US06
+usecase "US07 - Check history" as US07
+usecase "US08 - Check inventory" as US08
+
+Worker --> US01
+Worker --> US02
+Worker --> US03
+Worker --> US04
+Worker --> US05
+Worker --> US06
+Worker --> US07
+Worker --> US08
+@enduml

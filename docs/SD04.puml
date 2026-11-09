@@ -1,0 +1,51 @@
+@startuml
+title SD04 - Consult Parking Map and Slot Information
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":MapActivity" as View
+participant "MapController" as Ctrl
+participant ":MapService" as MapSvc
+participant "Mapper" as Mapper
+participant "restdb API" as DB
+
+activate User
+
+User -> View: asks to see the parking map
+
+View -> Ctrl: processMapSlots(activity, callback)
+note right of Ctrl: runs in a background thread, callbacks are posted to the UI thread
+Ctrl -> MapSvc: fetchMapSlots(activity)
+MapSvc -> DB: GET /slots
+DB --> MapSvc: slots (json)
+MapSvc --> Ctrl: slotDTOList (may be empty)
+Ctrl -> Mapper: slotDTOList2SlotList(slotDTOList)
+Mapper --> Ctrl: slotList
+
+alt error while loading
+    Ctrl --> View: onError("Error while loading map data")
+    View --> User: shows error message
+else loaded
+    Ctrl --> View: onSuccess(slotList)
+    View -> View: updateMapUI(slotList)
+    View --> View: shows a car icon on the occupied slots
+    View --> User: shows the parking map
+end
+
+User -> View: taps a slot
+
+alt map data not loaded yet
+    View --> User: shows "Loading map data..."
+else map data loaded
+    View -> View: findSlotById(slotId)
+    View --> View: slot
+
+    alt slot is occupied
+        View --> User: shows slot, status Occupied and VIN with the options "empty spot" (SD06) and "remove pieces" (SD05)
+    else slot is empty
+        View --> User: shows "This slot is empty."
+    end
+end
+
+@enduml

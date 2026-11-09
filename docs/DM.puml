@@ -1,0 +1,35 @@
+@startuml
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+
+class Worker
+class Map
+class History
+class Inventory
+
+class Vehicle {
+  VIN
+  make
+  model
+  year
+  is_salvageable
+}
+
+class Slot {
+  row
+  column
+}
+
+class Part {
+  name
+}
+
+Worker "1" -- "1" Map : manages >
+Worker "1" -- "*" Vehicle : registers >
+Map "1" -- "50" Slot : has >
+Vehicle "1" -- "1" Slot : is parked in >
+Vehicle "1" -- "0..*" Part : is made of >
+History "1" -- "0..*" Vehicle : records >
+Inventory "1" -- "0..*" Part : records >
+@enduml
