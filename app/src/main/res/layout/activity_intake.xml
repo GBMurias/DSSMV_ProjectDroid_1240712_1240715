@@ -187,7 +187,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:backgroundTint="#A0522D"
-                        android:text="Add Part"
+                        android:text="Add Part(s)"
                         android:textColor="#FFFFFF" />
 
                 </LinearLayout>

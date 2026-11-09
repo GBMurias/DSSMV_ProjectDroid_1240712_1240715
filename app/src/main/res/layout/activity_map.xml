@@ -424,7 +424,7 @@
                         android:id="@+id/txt_vehicle_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Descrição: Carro XPTO"
+                        android:text="Description: Car XPTO"
                         android:textColor="#222222"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -451,7 +451,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="10dp"
-                        android:text="Empty_Slot"
+                        android:text="Empty Slot"
                         android:textColor="#D32F2F"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -464,7 +464,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="10dp"
-                        android:text="Remove Parts"
+                        android:text="Remove Part(s)"
                         android:textColor="#333333"
                         android:textSize="14sp"
                         android:background="?attr/selectableItemBackground"
@@ -522,7 +522,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Removable_Parts"
+                            android:text="Removable Parts"
                             android:textColor="#333333"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -568,7 +568,7 @@
                             android:layout_weight="1"
                             android:layout_marginEnd="6dp"
                             android:backgroundTint="#9E9E9E"
-                            android:text="Cancelar"
+                            android:text="Cancel"
                             android:textColor="#FFFFFF" />
 
                         <Button
@@ -578,7 +578,7 @@
                             android:layout_weight="1"
                             android:layout_marginStart="6dp"
                             android:backgroundTint="#A0522D"
-                            android:text="Adicionar"
+                            android:text="Remove"
                             android:textColor="#FFFFFF" />
                     </LinearLayout>
 

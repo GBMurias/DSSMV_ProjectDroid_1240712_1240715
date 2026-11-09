@@ -13,15 +13,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
-
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import controller.PartsController;
 import controller.VehicleController;
 import model.Parts;
@@ -64,31 +61,36 @@ public class IntakeActivity extends AppCompatActivity {
                     return;
                 }
 
-                new Thread(() -> {
-                    VehicleController controller = new VehicleController();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        VehicleController controller = new VehicleController();
 
-                    try {
-                        Vehicle vehicle = controller.validateVehicleIntake(vin);
-                        pendingVehicle = vehicle;
+                        try {
+                            Vehicle vehicle = controller.validateVehicleIntake(vin);
+                            pendingVehicle = vehicle;
 
-                        runOnUiThread(() -> {
-                            String info = vehicle.getMake() + " " + vehicle.getModel() + " (" + vehicle.getYear() + ")";
-                            tvVehicleInfo.setText(info);
-                            cardPopup.setVisibility(View.VISIBLE);
-                            buttonVIN.setEnabled(false);
-                        });
+                            runOnUiThread(() -> {
+                                String info = vehicle.getMake() + " " + vehicle.getModel() + " (" + vehicle.getYear() + ")";
+                                tvVehicleInfo.setText(info);
+                                cardPopup.setVisibility(View.VISIBLE);
+                                buttonVIN.setEnabled(false);
+                            });
 
-                    } catch (Exception e) {
-                        String errorMessage = e.getMessage();
-                        runOnUiThread(() -> {
-                            Toast.makeText(IntakeActivity.this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
-                            buttonVIN.setEnabled(true);
-                        });
+                        } catch (Exception e) {
+                            String errorMessage = e.getMessage();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(IntakeActivity.this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
+                                    buttonVIN.setEnabled(true);
+                                }
+                            });
+                        }
                     }
                 }).start();
             }
         });
-
 
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
