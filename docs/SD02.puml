@@ -1,0 +1,112 @@
+@startuml
+title SD02 - Register Vehicle Intake
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":IntakeActivity" as View
+participant "IntakeController" as Ctrl
+participant ":NHTSAService" as NHTSA
+participant "NHTSA API" as NHTSAApi
+participant "Mapper" as Mapper
+participant "vehicle:Vehicle" as Vehicle
+participant ":PartsService" as PartsSvc
+participant ":VehicleService" as VehicleSvc
+participant "restdb API" as DB
+
+activate User
+
+User -> View: asks to register a vehicle intake
+View --> User: requests the VIN (typed or scanned, see SD01)
+
+User -> View: types the VIN and confirms
+
+alt VIN field is empty
+    View --> User: shows error "Please enter a VIN."
+else VIN filled in
+    View -> Ctrl: validateVehicleIntake(activity, vin, callback)
+    note right of Ctrl: runs in a background thread, callbacks are posted to the UI thread
+
+    alt VIN is empty or does not have 17 characters
+        Ctrl --> View: onError("Wrong VIN format")
+        View --> User: shows error message
+    else valid format
+        Ctrl -> NHTSA: fetchVehicleDetails(vin)
+        NHTSA -> NHTSAApi: GET /decodevinvalues/{vin}?format=json
+        NHTSAApi --> NHTSA: vehicle data (json)
+        NHTSA --> Ctrl: vehicleDTO (null if make is empty or Unknown)
+
+        alt vehicleDTO is null
+            Ctrl --> View: onError("Couldn't get vehicle data. Invalid VIN.")
+            View --> User: shows error message
+        else vehicle year is before 1980
+            Ctrl --> View: onError("Vehicle rejected: models prior to 1980")
+            View --> User: shows error message
+        else vehicle accepted
+            Ctrl -> Mapper: vehicleDTO2Vehicle(vehicleDTO)
+            Mapper --> Vehicle**: create(vin, make, model, year)
+            Mapper --> Ctrl: vehicle
+            Ctrl --> View: onSuccess(vehicle)
+            View --> User: shows make, model and year and asks if the vehicle is salvageable
+        end
+    end
+end
+
+alt vehicle is salvageable
+    User -> View: answers yes
+    View -> Vehicle: setStatus(true)
+    Vehicle --> View: ok
+
+    View -> Ctrl: processPartsInfo(activity, callback)
+    Ctrl -> PartsSvc: fetchPartsInfo(activity, "parts")
+    PartsSvc -> DB: GET /parts
+    DB --> PartsSvc: parts (json)
+    PartsSvc --> Ctrl: partsDTOList
+
+    alt no parts found
+        Ctrl --> View: onError("No parts were found in the data base.")
+        View --> User: shows error message
+    else parts found
+        Ctrl -> Mapper: partsDTOList2PartsList(partsDTOList)
+        Mapper --> Ctrl: partsList
+        Ctrl --> View: onSuccess(partsList)
+        View --> User: shows the list of parts (multiple choice)
+
+        User -> View: selects the parts to keep and confirms
+
+        alt no part selected
+            View --> User: shows "Please select at least one part."
+        else at least one part selected
+            loop for each selected part
+                View -> View: part.setAssociatedVIN/Make/Model/Year(vehicle data)
+                View --> View: ok
+            end
+            View -> Vehicle: setPartsList(selectedPartsList)
+            Vehicle --> View: ok
+        end
+    end
+else vehicle is not salvageable
+    User -> View: answers no
+    View -> Vehicle: setStatus(false)
+    Vehicle --> View: ok
+end
+
+View -> Ctrl: processVehicleIntake(activity, vehicle, callback)
+Ctrl -> Mapper: vehicle2VehicleDTO(vehicle)
+Mapper --> Ctrl: vehicleDTO
+Ctrl -> VehicleSvc: registerIntake(activity, vehicleDTO, "intakes")
+VehicleSvc -> VehicleSvc: serializeVehicle(vehicleDTO, "intakes")
+VehicleSvc --> VehicleSvc: jsonBody
+VehicleSvc -> DB: POST /intakes (jsonBody)
+DB --> VehicleSvc: HTTP response code
+VehicleSvc --> Ctrl: true if code is 2xx, otherwise false
+
+alt registration failed
+    Ctrl --> View: onError("Error while registering vehicle in the data base.")
+    View --> User: shows "Save Error" and re-enables the VIN confirmation
+else registration succeeded
+    Ctrl --> View: onSuccess()
+    View --> User: informs operation success and opens the parking map to choose a slot (see SD03)
+end
+
+@enduml

@@ -1,0 +1,121 @@
+@startuml
+title SD05 - Remove Parts from a Vehicle and Move Them to the Inventory
+autoactivate on
+autonumber
+
+actor "Worker" as User
+participant ":MapActivity" as View
+participant "MapController" as Ctrl
+participant ":VehicleService" as VehicleSvc
+participant ":PartsService" as PartsSvc
+participant "Mapper" as Mapper
+participant "ApiGetInfo" as Api
+participant "restdb API" as DB
+
+activate User
+
+note over User, View: the map is already loaded and the operator tapped an occupied slot (see SD04)
+
+User -> View: asks to remove pieces from the vehicle in the slot
+
+View -> View: findSlotById(currentClickedSlotId)
+View --> View: slot
+
+alt slot not found
+    View --> User: shows "Slot not found."
+else slot is free
+    View --> User: shows "This slot is free."
+else slot is occupied
+    View -> Ctrl: getVehicle(activity, vin, callback)
+    Ctrl -> Ctrl: fetchVehicle(activity, vin)
+    Ctrl -> VehicleSvc: fetchVehicle(activity, vin)
+    VehicleSvc -> Api: getDocumentId(ctx, "intakes", {VIN})
+    Api -> DB: GET /intakes?q={VIN}
+    DB --> Api: matching intake (json)
+    Api --> VehicleSvc: docId
+    VehicleSvc -> DB: GET /intakes?q={VIN}
+    DB --> VehicleSvc: intake (json)
+    VehicleSvc --> Ctrl: vehicleDTO (null if not found)
+    Ctrl -> Mapper: vehicleDTO2Vehicle(vehicleDTO)
+    Mapper --> Ctrl: vehicle
+    Ctrl --> Ctrl: vehicle
+    Ctrl --> View: onSuccess(vehicle)
+end
+
+alt error while fetching the vehicle
+    View --> User: shows error message
+else vehicle has no parts
+    View --> User: shows "This vehicle has no parts."
+else vehicle has parts
+    View --> User: shows the list of parts (multiple choice)
+
+    User -> View: selects the parts to remove and confirms
+
+    alt no part selected
+        View --> User: shows "Select at least one part."
+    else all the parts were selected
+        View --> User: asks to confirm the removal of the vehicle from the slot (no parts left)
+        alt operator cancels
+            User -> View: cancels
+            View --> User: clears the selection
+        else operator confirms
+            User -> View: confirms "Remove vehicle"
+            View -> View: removeNamesFromListView(selectedNames)
+            View --> View: ok
+            View -> Ctrl: movePartsToInventory(activity, slot, vin, selectedNames, callback)
+            note right of Ctrl: see the common processing below
+        end
+    else some parts were selected
+        View -> View: removeNamesFromListView(selectedNames)
+        View --> View: ok
+        View -> Ctrl: movePartsToInventory(activity, slot, vin, selectedNames, callback)
+    end
+end
+
+group movePartsToInventory (background thread)
+    Ctrl -> Ctrl: fetchVehicle(activity, vin)
+    Ctrl --> Ctrl: vehicle
+    Ctrl -> Ctrl: splitPartsBySelection(vehicle, selectedNames, toInventory, remaining)
+    Ctrl --> Ctrl: toInventory, remaining
+
+    alt selected parts not found in the vehicle
+        Ctrl --> View: onError("Pecas nao encontradas no veiculo.")
+        View --> User: shows error message and reloads the real list of parts
+    else parts found
+        Ctrl -> Ctrl: partsFromMap2Inventory(activity, toInventory)
+        Ctrl -> Mapper: storedPartsList2StoredPartsDTOList(toInventory)
+        Mapper --> Ctrl: partsDTOList
+        Ctrl -> PartsSvc: registerParts2Inventory(activity, partsDTOList)
+        PartsSvc -> DB: POST /inventory (parts)
+        DB --> PartsSvc: HTTP response code
+        PartsSvc --> Ctrl: true if code is 2xx, otherwise false
+        Ctrl --> Ctrl: ok or "Error while registering parts in the inventory."
+
+        Ctrl -> Ctrl: updateIntakeParts(activity, vin, remaining)
+        Ctrl -> Mapper: storedPartsList2StoredPartsDTOList(remaining)
+        Mapper --> Ctrl: remainingDTOList
+        Ctrl -> VehicleSvc: updateVehicleParts(activity, vin, remainingDTOList)
+        VehicleSvc -> Api: getDocumentId(ctx, "intakes", {VIN})
+        Api -> DB: GET /intakes?q={VIN}
+        DB --> Api: matching intake (json)
+        Api --> VehicleSvc: docId
+        VehicleSvc -> DB: PATCH /intakes/{docId} (parts)
+        DB --> VehicleSvc: HTTP response code
+        VehicleSvc --> Ctrl: true if code is 2xx, otherwise false
+        Ctrl --> Ctrl: ok or "Error while updating vehicle parts."
+
+        alt remaining parts is empty (vehicle scrapped)
+            ref over Ctrl, VehicleSvc, DB : scrapVehicleAndEmptySlot(slot, vin) - see SD06
+        end
+
+        Ctrl --> View: onSuccess(vehicleScrapped)
+    end
+end
+
+alt vehicle was scrapped
+    View --> User: informs the vehicle was removed from the slot and sent to inventory, and updates the map (see SD04)
+else vehicle still has parts
+    View --> User: informs "Parts added to inventory!"
+end
+
+@enduml
