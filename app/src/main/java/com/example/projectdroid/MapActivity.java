@@ -556,7 +556,7 @@ public class MapActivity extends AppCompatActivity {
     private void showScrapConfirmDialog(final Slot slot, final String vin, final List<String> selectedNames) {
         new AlertDialog.Builder(MapActivity.this)
                 .setTitle("Vehicle has no parts")
-                .setMessage("This will have no parts left.\nDo you want to remove it from this slot?")
+                .setMessage("This vehicle will have no parts left.\nDo you want to remove it from this slot?")
                 .setCancelable(false)
                 .setPositiveButton("Remove vehicle", new DialogInterface.OnClickListener() {
                     @Override
