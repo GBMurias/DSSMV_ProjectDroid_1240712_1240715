@@ -1,21 +1,17 @@
 package com.example.projectdroid;
 
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
-
 import java.util.List;
 import adapter.InventoryAdapter;
-
-import controller.PartsController;
+import controller.InventoryController;
 import model.Parts;
 
 public class InventoryActivity extends AppCompatActivity {
@@ -43,30 +39,23 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
-        new Thread(new Runnable() {
+        InventoryController.processInventoryInfo(this, new InventoryController.InventoryCallback() {
             @Override
-            public void run() {
-                PartsController controller = new PartsController();
-                try {
-                    List<Parts> storedParts = controller.processInventoryInfo(InventoryActivity.this);
-
-                    runOnUiThread(() -> {
-                        InventoryAdapter adapter = new InventoryAdapter(InventoryActivity.this, storedParts);
-                        lvInventory.setAdapter(adapter);
-                        lvInventory.setOnItemClickListener((parent, view, position, id) -> {
-                            Parts clickedPart = (Parts) adapter.getItem(position);
-                            String details = clickedPart.getAssociatedMake() + " " + clickedPart.getAssociatedModel() + " - " + clickedPart.getAssociatedYear();
-                            tvPartDetails.setText(details);
-                            cardPopup.setVisibility(View.VISIBLE);
-                        });
-                    });
-                } catch (Exception e) {
-                    String error = e.getMessage();
-                    runOnUiThread(() -> {
-                        Toast.makeText(InventoryActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
-                    });
-                }
+            public void onSuccess(List<Parts> storedParts) {
+                final InventoryAdapter adapter = new InventoryAdapter(InventoryActivity.this, storedParts);
+                lvInventory.setAdapter(adapter);
+                lvInventory.setOnItemClickListener((parent, view, position, id) -> {
+                    Parts clickedPart = (Parts) adapter.getItem(position);
+                    String details = clickedPart.getAssociatedMake() + " " + clickedPart.getAssociatedModel() + " - " + clickedPart.getAssociatedYear();
+                    tvPartDetails.setText(details);
+                    cardPopup.setVisibility(View.VISIBLE);
+                });
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                Toast.makeText(InventoryActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

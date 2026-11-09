@@ -42,37 +42,23 @@ public class HistoryActivity extends AppCompatActivity {
             }
         });
 
-        new Thread(new Runnable() {
+        HistoryController.getScrappedVehicles(this, new HistoryController.HistoryCallback() {
             @Override
-            public void run() {
-                HistoryController controller = new HistoryController();
-                try {
-                    List<Vehicle> scrappedVehicles = controller.getScrappedVehicles(HistoryActivity.this);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            HistoryAdapter adapter = new HistoryAdapter(HistoryActivity.this, scrappedVehicles);
-                            lvHistory.setAdapter(adapter);
-                            lvHistory.setOnItemClickListener((parent, view, position, id) -> {
-                                Vehicle clickedVehicle = (Vehicle) adapter.getItem(position);
-                                String details = clickedVehicle.getMake() + " " + clickedVehicle.getModel() + " " + clickedVehicle.getYear();
-                                tvVehicleDetails.setText(details);
-                                cardPopup.setVisibility(View.VISIBLE);
-                            });
-                        }
-                    });
-
-                } catch (Exception e) {
-                    String error = e.getMessage();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(HistoryActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
+            public void onSuccess(List<Vehicle> scrappedVehicles) {
+                final HistoryAdapter adapter = new HistoryAdapter(HistoryActivity.this, scrappedVehicles);
+                lvHistory.setAdapter(adapter);
+                lvHistory.setOnItemClickListener((parent, view, position, id) -> {
+                    Vehicle clickedVehicle = (Vehicle) adapter.getItem(position);
+                    String details = clickedVehicle.getMake() + " " + clickedVehicle.getModel() + " " + clickedVehicle.getYear();
+                    tvVehicleDetails.setText(details);
+                    cardPopup.setVisibility(View.VISIBLE);
+                });
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                Toast.makeText(HistoryActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

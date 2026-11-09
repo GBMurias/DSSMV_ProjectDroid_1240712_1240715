@@ -31,48 +31,13 @@ import model.Slot;
 
 public class MapActivity extends AppCompatActivity {
 
-    // ==========================================
-    // 1. VARIÁVEIS
-    // ==========================================
-
-    // --- Estado / dados ---
     private List<Slot> globalSlotsList;
-    private String selectedSlotId = "";
-    private String currentClickedSlotId = "";   // slot clicado no modo "consulta"
-    private String vehicleModel = "";
-    private String origin;
-    private boolean intakeRegistered = false;   // true depois de o intake ter ocupado um slot
-
-    // --- Popup de confirmação (Intake) / slot vazio ---
-    private CardView cardPopup;
-    private TextView tvVehicleInfo;
-    private TextView txtMapQuestion;
-    private Button btnNo;
-    private Button btnYes;
-
-    // --- Popup de opções do slot ---
-    private CardView cardParkingOptions;
-    private TextView txtVehicleDescription;
-    private TextView txtVehicleVin;
-    private TextView btnEmptySpot;
-    private TextView btnRemovePieces;
-    private TextView btnBackParkingOpt;
-
-    private Vehicle currentSelectedVehicle;
-
-    // --- Popup de peças ---
-    private CardView cardPartsPopup;
-    private TextView btnClosePartsPopup;
+    private String selectedSlotId = "", currentClickedSlotId = "", vehicleModel = "", origin;
+    private boolean intakeRegistered = false;
+    private CardView cardPopup, cardParkingOptions, cardPartsPopup;;
+    private TextView tvVehicleInfo, txtMapQuestion, txtVehicleDescription, txtVehicleVin,  btnEmptySpot, btnRemovePieces, btnBackParkingOpt, btnClosePartsPopup;
+    private Button btnNo, btnYes, btnCancelParts, btnAddPart, btnBackToMain;;
     private ListView listViewParts;
-    private Button btnCancelParts;
-    private Button btnAddPart;
-
-    // --- Botão "Voltar ao menu" (criado por código, só depois de registar o intake) ---
-    private Button btnBackToMain;
-
-    // ==========================================
-    // 2. CICLO DE VIDA
-    // ==========================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,27 +48,17 @@ public class MapActivity extends AppCompatActivity {
         initViews();
         readIntentExtras();
         setupSlotClickListeners();
-
-        // Popup de confirmação (Intake)
         setupBtnYes();
         setupBtnNo();
-
-        // Popup de opções do slot
         setupBtnEmptySpot();
         setupBtnRemovePieces();
         setupBtnBackParkingOpt();
-
-        // Popup de peças
         setupBtnClosePartsPopup();
         setupBtnCancelParts();
         setupBtnAddPart();
 
         loadMapData();
     }
-
-    // ==========================================
-    // 3. INICIALIZAÇÃO (chamada pelo onCreate)
-    // ==========================================
 
     private void initViews() {
         cardPopup = findViewById(R.id.mapcardPopup);
@@ -153,19 +108,12 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    // ==========================================
-    // 4. EVENT HANDLERS (só chamam funções)
-    // ==========================================
-
-    // ------------------ Clique num slot do mapa ------------------
-
     private void onSlotClicked(String slotIdName) {
         Slot clickedSlot = findSlotById(slotIdName);
 
         if ("IntakeAct".equals(origin)) {
-            // O intake já foi registado: não deixa ocupar mais slots com o mesmo veículo
             if (intakeRegistered) {
-                showToast("Intake já registado. Usa o botão para voltar ao menu.");
+                showToast("Intake registered. You can return to the Main Menu.");
                 return;
             }
 
@@ -175,14 +123,10 @@ public class MapActivity extends AppCompatActivity {
             }
             showIntakeConfirmPopup(slotIdName);
         } else {
-            // Guarda o slot clicado para o botão "Remove Parts" poder usá-lo
             currentClickedSlotId = slotIdName;
             popUpInformationSlot(slotIdName);
-            // popUpMeuParts já NÃO é chamado aqui; é chamado pelo btnRemovePieces
         }
     }
-
-    // ------------------ Popup de confirmação (Intake) ------------------
 
     private void setupBtnYes() {
         btnYes.setOnClickListener(new View.OnClickListener() {
@@ -201,8 +145,6 @@ public class MapActivity extends AppCompatActivity {
             }
         });
     }
-
-    // ------------------ Popup de opções do slot ------------------
 
     private void setupBtnEmptySpot() {
         btnEmptySpot.setOnClickListener(new View.OnClickListener() {
@@ -230,8 +172,6 @@ public class MapActivity extends AppCompatActivity {
             }
         });
     }
-
-    // ------------------ Popup de peças ------------------
 
     private void setupBtnClosePartsPopup() {
         btnClosePartsPopup.setOnClickListener(new View.OnClickListener() {
@@ -263,12 +203,6 @@ public class MapActivity extends AppCompatActivity {
         });
     }
 
-    // ==========================================
-    // 5. LÓGICA DOS HANDLERS
-    // ==========================================
-
-    // ---------------- -- Intake: confirmar slot ------------------
-
     private void onConfirmIntakeClicked() {
         if (selectedSlotId == null || selectedSlotId.isEmpty()) {
             return;
@@ -278,46 +212,35 @@ public class MapActivity extends AppCompatActivity {
         int rowInt = Integer.parseInt(selectedSlotId.substring(1));
         String vin = getIntent().getStringExtra("VIN");
 
-        // Validação feita ANTES de lançar a thread (Toast não pode ser chamado fora da UI thread)
         if (vin == null || vin.isEmpty()) {
-            showToast("Erro: O VIN do veículo não foi recebido!");
+            showToast("Error: No VIN was received!");
             return;
         }
-
         occupySlotInBackground(new Slot(rowInt, columnStr, vin));
     }
 
     private void occupySlotInBackground(final Slot slot) {
-        new Thread(new Runnable() {
+        MapController.registerVIN2Slot(this, slot, new MapController.SaveCallback() {
             @Override
-            public void run() {
-                MapController ctrl = new MapController();
-                final boolean sucess = ctrl.registerVIN2Slot(MapActivity.this, slot);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (sucess) {
-                            showToast("Lugar " + selectedSlotId + " ocupado com sucesso!");
-                            onIntakeSlotRegistered();
-                        } else {
-                            showToast("Erro ao atualizar o slot na base de dados.");
-                        }
-                        cardPopup.setVisibility(View.GONE);
-                    }
-                });
+            public void onSuccess() {
+                showToast("Slot " + selectedSlotId + " successfully occupied!");
+                onIntakeSlotRegistered();
+                cardPopup.setVisibility(View.GONE);
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToast(message);
+                cardPopup.setVisibility(View.GONE);
+            }
+        });
     }
 
-    /** Chamado na UI thread quando o intake acabou de ocupar um slot: recarrega o mapa e mostra o botão de voltar. */
     private void onIntakeSlotRegistered() {
         intakeRegistered = true;
-        loadMapData();          // volta a carregar o mapa, já com o veículo no slot
+        loadMapData();
         showBackToMainButton();
     }
-
-    // ------------------ Esvaziar slot (enviar veículo para history) ------------------
 
     private void onEmptySpotClicked() {
         Slot slotToEmpty = findSlotById(currentClickedSlotId);
@@ -329,208 +252,112 @@ public class MapActivity extends AppCompatActivity {
 
         String vin = slotToEmpty.getCurrent_vin();
         if (vin == null || vin.isEmpty()) {
-            showToast("Erro: Este slot não tem um VIN associado.");
+            showToast("Errro: This slot is empty.");
             return;
         }
-
         checkPartsBeforeEmptyingInBackground(slotToEmpty, vin);
     }
 
-    /**
-     * Vai buscar o veículo (fora da UI thread) para saber se ainda tem peças:
-     * - sem peças  -> esvazia o slot logo
-     * - com peças  -> pergunta se quer enviar todas as peças para o inventory
-     */
     private void checkPartsBeforeEmptyingInBackground(final Slot slot, final String vin) {
-        new Thread(new Runnable() {
+        MapController.getVehicle(this, vin, new MapController.VehicleCallback() {
             @Override
-            public void run() {
-                try {
-                    MapController controller = new MapController();
-                    Vehicle vehicle = controller.getVehicle(MapActivity.this, vin);
-                    List<Parts> parts = vehicle.getPartsList();
-                    final int partsCount = (parts == null) ? 0 : parts.size();
+            public void onSuccess(Vehicle vehicle) {
+                List<Parts> parts = vehicle.getPartsList();
+                int partsCount = (parts == null) ? 0 : parts.size();
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (partsCount == 0) {
-                                cardParkingOptions.setVisibility(View.GONE);
-                                sendVehicleToHistoryInBackground(slot, vin);
-                            } else {
-                                showSendAllPartsDialog(slot, vin, partsCount);
-                            }
-                        }
-                    });
-
-                } catch (final Exception e) {
-                    Log.e("MapActivity", "Error checking vehicle parts", e);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToastLong("Erro: " + e.getMessage());
-                        }
-                    });
+                if (partsCount == 0) {
+                    cardParkingOptions.setVisibility(View.GONE);
+                    sendVehicleToHistoryInBackground(slot, vin);
+                } else {
+                    showSendAllPartsDialog(slot, vin, partsCount);
                 }
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToastLong("Error: " + message);
+            }
+        });
     }
 
-    /** Aviso: o veículo ainda tem peças. Se confirmar, vão todas para o inventory e o slot é esvaziado. */
     private void showSendAllPartsDialog(final Slot slot, final String vin, int partsCount) {
         new AlertDialog.Builder(MapActivity.this)
-                .setTitle("Veículo com peças")
-                .setMessage("Este veículo ainda tem " + partsCount + " peça(s).\n"
-                        + "Queres enviar todas as peças para o inventory e esvaziar o slot?")
+                .setTitle("Vehicle has parts")
+                .setMessage("This vehicle still has " + partsCount + " part(s).\n"
+                        + "Do you want to send all parts to inventory and empty this slot?")
                 .setCancelable(false)
-                .setPositiveButton("Enviar tudo", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Send all", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         cardParkingOptions.setVisibility(View.GONE);
                         sendAllPartsAndEmptySlotInBackground(slot, vin);
                     }
                 })
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Não faz nada: o popup de opções do slot continua aberto
                     }
                 })
                 .show();
     }
 
-    /**
-     * 1. passa TODAS as peças para o inventory, 2. deixa o veículo sem peças,
-     * 3. envia o veículo para history e esvazia o slot.
-     */
     private void sendAllPartsAndEmptySlotInBackground(final Slot slot, final String vin) {
-        new Thread(new Runnable() {
+        MapController.sendAllPartsAndEmptySlot(this, slot, vin, new MapController.SaveCallback() {
             @Override
-            public void run() {
-                try {
-                    MapController controller = new MapController();
-                    Vehicle vehicle = controller.getVehicle(MapActivity.this, vin);
-
-                    List<Parts> toInventory = new ArrayList<>();
-                    List<Parts> vehicleParts = vehicle.getPartsList();
-                    if (vehicleParts != null) {
-                        for (Parts p : vehicleParts) {
-                            toInventory.add(new Parts(p.getName(), vehicle.getVin(),
-                                    vehicle.getModel(), vehicle.getMake(), vehicle.getYear()));
-                        }
-                    }
-
-                    if (!toInventory.isEmpty()) {
-                        // a) Adicionar ao inventário
-                        controller.partsFromMap2Inventory(MapActivity.this, toInventory);
-
-                        // b) Só depois deixar o veículo sem peças
-                        controller.updateIntakeParts(MapActivity.this, vin, new ArrayList<Parts>());
-                    }
-
-                    // c) Veículo -> history e slot vazio
-                    scrapVehicleAndEmptySlot(controller, slot, vin);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            onVehicleScrapped(vin);
-                        }
-                    });
-
-                } catch (final Exception e) {
-                    Log.e("MapActivity", "Error sending all parts to inventory", e);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToastLong("Erro: " + e.getMessage());
-                            loadMapData();
-                        }
-                    });
-                }
+            public void onSuccess() {
+                onVehicleScrapped(vin);
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToastLong("Error: " + message);
+                loadMapData();
+            }
+        });
     }
 
     private void sendVehicleToHistoryInBackground(final Slot slot, final String vin) {
-        new Thread(new Runnable() {
+        MapController.sendVehicleToHistory(this, slot, vin, new MapController.SaveCallback() {
             @Override
-            public void run() {
-                try {
-                    scrapVehicleAndEmptySlot(new MapController(), slot, vin);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            currentSelectedVehicle = null;
-                            showToast("Veículo (VIN: " + vin + ") enviado para o inventory!");
-                            loadMapData();
-                        }
-                    });
-
-                } catch (final Exception e) {
-                    Log.e("MapActivity", "Error sending vehicle to inventory", e);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToastLong("Erro: " + e.getMessage());
-                        }
-                    });
-                }
+            public void onSuccess() {
+                showToast("Vehicle (VIN: " + vin + ") sent to inventory!");
+                loadMapData();
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToastLong("Error: " + message);
+            }
+        });
     }
-
-    /**
-     * Passos partilhados (têm de correr fora da UI thread):
-     * 1. vai buscar o veículo, 2. copia-o para history, 3. apaga-o do intake, 4. esvazia o slot.
-     */
-    private void scrapVehicleAndEmptySlot(MapController controller, Slot slot, String vin) throws Exception {
-        Vehicle vehicle = controller.getVehicle(MapActivity.this, vin);
-        currentSelectedVehicle = vehicle;
-
-        controller.moveIntake2History(MapActivity.this, currentSelectedVehicle);
-        controller.deleteIntake(MapActivity.this, currentSelectedVehicle.getVin());
-        slot.setCurrent_vin("");
-        boolean ok = controller.registerVIN2Slot(MapActivity.this, slot);
-        if (!ok) throw new RuntimeException("Não foi possível esvaziar o slot.");
-    }
-
-    // ------------------ Passar peças para o inventário ------------------
 
     private void onAddPartsClicked() {
         // 1. Ler os nomes das peças selecionadas na ListView
         List<String> selectedNames = getSelectedPartNames();
 
         if (selectedNames.isEmpty()) {
-            showToast("Seleciona pelo menos uma peça.");
+            showToast("Select at least one part.");
             return;
         }
 
-        // 2. Obter o slot atual
         Slot currentSlot = findSlotById(currentClickedSlotId);
 
         if (currentSlot == null || !currentSlot.isOccupied()) {
-            showToast("Slot inválido.");
+            showToast("Invalid slot.");
             return;
         }
 
         String vin = currentSlot.getCurrent_vin();
 
-        // 3. Se vai remover as últimas peças, pergunta primeiro se quer remover o veículo
         if (willRemoveAllParts(selectedNames)) {
             showScrapConfirmDialog(currentSlot, vin, selectedNames);
             return;
         }
-
         startMovingParts(currentSlot, vin, selectedNames);
     }
 
     private void startMovingParts(Slot slot, String vin, List<String> selectedNames) {
-        // Primeiro: desaparecem da ListView
         removeNamesFromListView(selectedNames);
-
-        // Depois: base de dados (fora da UI thread)
         movePartsToInventoryInBackground(slot, vin, selectedNames);
     }
 
@@ -545,7 +372,6 @@ public class MapActivity extends AppCompatActivity {
         return selectedNames;
     }
 
-    /** true se as peças selecionadas são todas as que ainda estão na ListView. */
     private boolean willRemoveAllParts(List<String> selectedNames) {
         return selectedNames.size() >= listViewParts.getAdapter().getCount();
     }
@@ -560,119 +386,51 @@ public class MapActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    /**
-     * Separa as peças do veículo: as selecionadas vão para toInventory (com os dados do veículo),
-     * as restantes ficam em remaining.
-     */
-    private void splitPartsBySelection(Vehicle vehicle, List<String> selectedNames,
-                                       List<Parts> toInventory, List<Parts> remaining) {
-        List<String> pending = new ArrayList<>(selectedNames);
-
-        for (Parts p : vehicle.getPartsList()) {
-            if (pending.remove(p.getName())) {
-                // Preenche os dados associados ao veículo
-                toInventory.add(new Parts(p.getName(), vehicle.getVin(),
-                        vehicle.getModel(), vehicle.getMake(), vehicle.getYear()));
-            } else {
-                remaining.add(p);
-            }
-        }
-    }
-
     private void movePartsToInventoryInBackground(final Slot slot, final String vin, final List<String> selectedNames) {
-        new Thread(new Runnable() {
+        MapController.movePartsToInventory(this, slot, vin, selectedNames, new MapController.MovePartsCallback() {
             @Override
-            public void run() {
-                try {
-                    MapController controller = new MapController();
-                    Vehicle vehicle = controller.getVehicle(MapActivity.this, vin);
-
-                    List<Parts> toInventory = new ArrayList<>();
-                    List<Parts> remaining = new ArrayList<>();
-                    splitPartsBySelection(vehicle, selectedNames, toInventory, remaining);
-
-                    if (toInventory.isEmpty()) {
-                        throw new RuntimeException("Peças não encontradas no veículo.");
-                    }
-
-                    // a) Adicionar ao inventário
-                    controller.partsFromMap2Inventory(MapActivity.this, toInventory);
-
-                    // b) Só depois remover do veículo
-                    controller.updateIntakeParts(MapActivity.this, vin, remaining);
-
-                    // c) Se o veículo ficou sem peças -> remover do slot (já foi confirmado pelo utilizador)
-                    if (remaining.isEmpty()) {
-                        scrapVehicleAndEmptySlot(controller, slot, vin);
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                onVehicleScrapped(vin);
-                            }
-                        });
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showToast("Peças adicionadas ao inventário!");
-                            }
-                        });
-                    }
-
-                } catch (final Exception e) {
-                    Log.e("MapActivity", "Error moving parts to inventory", e);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToastLong("Erro: " + e.getMessage());
-                            // Recarrega a lista real para repor as peças que falharam
-                            popUpMeuParts(currentClickedSlotId);
-                        }
-                    });
+            public void onSuccess(boolean vehicleScrapped) {
+                if (vehicleScrapped) {
+                    onVehicleScrapped(vin);
+                } else {
+                    showToast("Parts added to inventory!");
                 }
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToastLong("Error: " + message);
+                // Reload the real list to restore the parts that failed
+                popUpMeuParts(currentClickedSlotId);
+            }
+        });
     }
 
-    /** Chamado na UI thread quando o veículo ficou sem peças e o slot foi esvaziado. */
     private void onVehicleScrapped(String vin) {
-        currentSelectedVehicle = null;
         cardPartsPopup.setVisibility(View.GONE);
         cardParkingOptions.setVisibility(View.GONE);
-        showToastLong("Veículo (VIN: " + vin + ") removido do slot e enviado para o inventory!");
+        showToastLong("Vehicle (VIN: " + vin + ") removed form slot and sent to inventory!");
         loadMapData();
     }
 
-    /** Cancelou o abate: nada foi removido, os popups continuam como estavam. */
     private void onScrapCancelled() {
         listViewParts.clearChoices();
         ((ArrayAdapter<?>) listViewParts.getAdapter()).notifyDataSetChanged();
     }
 
-    // ==========================================
-    // 6. CARREGAMENTO DE DADOS E ATUALIZAÇÃO DA UI
-    // ==========================================
-
     private void loadMapData() {
-        new Thread(() -> {
-            MapController controller = new MapController();
-
-            try {
-                List<Slot> slots = controller.processMapSlots(MapActivity.this);
+        MapController.processMapSlots(this, new MapController.SlotsCallback() {
+            @Override
+            public void onSuccess(List<Slot> slots) {
                 globalSlotsList = slots;
-
-                runOnUiThread(() -> {
-                    updateMapUI(slots);
-                });
-
-            } catch (Exception e) {
-                String errorMsg = e.getMessage();
-                runOnUiThread(() -> {
-                    showToastLong("Error while loading map data: " + errorMsg);
-                });
+                updateMapUI(slots);
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToastLong(message);
+            }
+        });
     }
 
     private void updateMapUI(List<Slot> slots) {
@@ -694,32 +452,23 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    // ==========================================
-    // 7. POPUPS
-    // ==========================================
-
-    // --- Intake: slot ocupado / confirmação ---
-
     private void showIntakeOccupiedPopup(String slotIdName) {
-        tvVehicleInfo.setText("Slot: " + slotIdName + "\nO Slot está Ocupado!");
+        tvVehicleInfo.setText("Slot: " + slotIdName + "\nThis slot is occupied!");
         txtMapQuestion.setVisibility(View.GONE);
         btnYes.setVisibility(View.GONE);
         btnNo.setText("Back");
-
         cardPopup.setVisibility(View.VISIBLE);
     }
 
     private void showIntakeConfirmPopup(String slotIdName) {
         selectedSlotId = slotIdName;
-        tvVehicleInfo.setText("Modelo: " + vehicleModel + "\nSlot: " + selectedSlotId);
+        tvVehicleInfo.setText("Model: " + vehicleModel + "\nSlot: " + selectedSlotId);
         txtMapQuestion.setVisibility(View.VISIBLE);
         btnYes.setVisibility(View.VISIBLE);
         btnNo.setText("No");
 
         cardPopup.setVisibility(View.VISIBLE);
     }
-
-    // --- Consulta: info do slot ---
 
     private void popUpInformationSlot(String clickedSlotId) {
         if (!isMapDataLoaded()) return;
@@ -745,7 +494,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void showEmptySlotPopup() {
-        tvVehicleInfo.setText("Este slot está vazio");
+        tvVehicleInfo.setText("This slot is empty.");
         txtMapQuestion.setVisibility(View.GONE);
         btnYes.setVisibility(View.GONE);
         btnNo.setText("Back");
@@ -754,11 +503,8 @@ public class MapActivity extends AppCompatActivity {
         cardPopup.setVisibility(View.VISIBLE);
     }
 
-    // --- Popup de peças ---
-
     private void popUpMeuParts(String clickedSlotId) {
         if (!isMapDataLoaded()) return;
-
         Slot selectedSlot = findSlotById(clickedSlotId);
 
         if (selectedSlot == null) {
@@ -767,45 +513,29 @@ public class MapActivity extends AppCompatActivity {
         }
 
         if (!selectedSlot.isOccupied()) {
-            showToast("Este slot está livre.");
+            showToast("This slot is free.");
             return;
         }
-
         loadVehiclePartsInBackground(selectedSlot);
     }
 
     private void loadVehiclePartsInBackground(final Slot slot) {
-        new Thread(new Runnable() {
+        MapController.getVehicle(this, slot.getCurrent_vin(), new MapController.VehicleCallback() {
             @Override
-            public void run() {
-                try {
-                    MapController controller = new MapController();
-                    Vehicle vehicle = controller.getVehicle(MapActivity.this, slot.getCurrent_vin());
-                    final List<Parts> parts = vehicle.getPartsList();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showPartsPopup(parts);
-                        }
-                    });
-
-                } catch (final Exception e) {
-                    Log.e("MapActivity", "Error fetching vehicle", e);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToast(e.getMessage());
-                        }
-                    });
-                }
+            public void onSuccess(Vehicle vehicle) {
+                showPartsPopup(vehicle.getPartsList());
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                showToast(message);
+            }
+        });
     }
 
     private void showPartsPopup(List<Parts> parts) {
         if (parts == null || parts.isEmpty()) {
-            showToast("Este veículo não tem peças.");
+            showToast("This vehicle has no parts.");
             return;
         }
 
@@ -820,25 +550,21 @@ public class MapActivity extends AppCompatActivity {
                 nomes);
 
         listViewParts.setAdapter(adapter);
-
-        // cardParkingOptions fica visível por trás do popup de peças
         cardPartsPopup.setVisibility(View.VISIBLE);
     }
 
-    // --- Diálogo: remover veículo sem peças ---
-
     private void showScrapConfirmDialog(final Slot slot, final String vin, final List<String> selectedNames) {
         new AlertDialog.Builder(MapActivity.this)
-                .setTitle("Veículo sem peças")
-                .setMessage("Este veículo vai ficar sem peças.\nQueres removê-lo deste slot?")
+                .setTitle("Vehicle has no parts")
+                .setMessage("This will have no parts left.\nDo you want to remove it from this slot?")
                 .setCancelable(false)
-                .setPositiveButton("Remover veículo", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Remove vehicle", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startMovingParts(slot, vin, selectedNames);
                     }
                 })
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         onScrapCancelled();
@@ -847,8 +573,6 @@ public class MapActivity extends AppCompatActivity {
                 .show();
     }
 
-    // --- Botão: voltar ao MainActivity (depois de registar o intake) ---
-
     private void showBackToMainButton() {
         if (btnBackToMain != null) {
             btnBackToMain.setVisibility(View.VISIBLE);
@@ -856,7 +580,7 @@ public class MapActivity extends AppCompatActivity {
         }
 
         btnBackToMain = new Button(MapActivity.this);
-        btnBackToMain.setText("Voltar ao menu");
+        btnBackToMain.setText("Back to Main Menu");
         btnBackToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -870,8 +594,6 @@ public class MapActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         params.setMargins(0, 0, 0, margin);
-
-        // addContentView põe o botão por cima do layout, sem mexer no activity_map.xml
         addContentView(btnBackToMain, params);
     }
 
@@ -882,11 +604,6 @@ public class MapActivity extends AppCompatActivity {
         finish();
     }
 
-    // ==========================================
-    // 8. UTILITÁRIOS
-    // ==========================================
-
-    /** Procura um slot na lista carregada pelo ID (ex: "A3"). Devolve null se não existir. */
     private Slot findSlotById(String slotId) {
         if (globalSlotsList == null) return null;
 
@@ -898,7 +615,6 @@ public class MapActivity extends AppCompatActivity {
         return null;
     }
 
-    /** Mostra "Loading map data..." e devolve false se a lista de slots ainda não carregou. */
     private boolean isMapDataLoaded() {
         if (globalSlotsList == null) {
             showToast("Loading map data...");

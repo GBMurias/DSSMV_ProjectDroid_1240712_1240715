@@ -19,8 +19,8 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 import java.util.ArrayList;
 import java.util.List;
-import controller.PartsController;
-import controller.VehicleController;
+
+import controller.IntakeController;
 import model.Parts;
 import model.Vehicle;
 
@@ -51,7 +51,7 @@ public class IntakeActivity extends AppCompatActivity {
         listViewParts = findViewById(R.id.listViewParts);
         btnScan = findViewById(R.id.btnScan);
 
-        buttonVIN.setOnClickListener(new View.OnClickListener(){
+        buttonVIN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String vin = etInput.getText().toString().trim();
@@ -61,34 +61,23 @@ public class IntakeActivity extends AppCompatActivity {
                     return;
                 }
 
-                new Thread(new Runnable() {
+                buttonVIN.setEnabled(false);
+
+                IntakeController.validateVehicleIntake(IntakeActivity.this, vin, new IntakeController.VehicleCallback() {
                     @Override
-                    public void run() {
-                        VehicleController controller = new VehicleController();
-
-                        try {
-                            Vehicle vehicle = controller.validateVehicleIntake(vin);
-                            pendingVehicle = vehicle;
-
-                            runOnUiThread(() -> {
-                                String info = vehicle.getMake() + " " + vehicle.getModel() + " (" + vehicle.getYear() + ")";
-                                tvVehicleInfo.setText(info);
-                                cardPopup.setVisibility(View.VISIBLE);
-                                buttonVIN.setEnabled(false);
-                            });
-
-                        } catch (Exception e) {
-                            String errorMessage = e.getMessage();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(IntakeActivity.this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
-                                    buttonVIN.setEnabled(true);
-                                }
-                            });
-                        }
+                    public void onSuccess(Vehicle vehicle) {
+                        pendingVehicle = vehicle;
+                        String info = vehicle.getMake() + " " + vehicle.getModel() + " (" + vehicle.getYear() + ")";
+                        tvVehicleInfo.setText(info);
+                        cardPopup.setVisibility(View.VISIBLE);
                     }
-                }).start();
+
+                    @Override
+                    public void onError(String message) {
+                        Toast.makeText(IntakeActivity.this, "Error: " + message, Toast.LENGTH_LONG).show();
+                        buttonVIN.setEnabled(true);
+                    }
+                });
             }
         });
 
@@ -185,80 +174,51 @@ public class IntakeActivity extends AppCompatActivity {
     private void saveVehicle(String successMessage) {
         if (pendingVehicle == null) return;
 
-        new Thread(new Runnable() {
+        IntakeController.processVehicleIntake(this, pendingVehicle, new IntakeController.SaveCallback() {
             @Override
-            public void run() {
-                VehicleController controller = new VehicleController();
-                try {
-                    controller.processVehicleIntake(IntakeActivity.this, pendingVehicle);
+            public void onSuccess() {
+                Toast.makeText(IntakeActivity.this, successMessage, Toast.LENGTH_LONG).show();
+                cardPartsPopup.setVisibility(View.GONE);
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(IntakeActivity.this, successMessage, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(IntakeActivity.this, MapActivity.class);
+                intent.putExtra("Where", "IntakeAct");
+                intent.putExtra("VIN", pendingVehicle.getVin());
+                intent.putExtra("Modelo", pendingVehicle.getModel());
+                startActivity(intent);
 
-                            cardPartsPopup.setVisibility(View.GONE);
-
-                            Intent intent = new Intent(IntakeActivity.this, MapActivity.class);
-                            intent.putExtra("Where", "IntakeAct");
-                            intent.putExtra("VIN", pendingVehicle.getVin());
-                            intent.putExtra("Modelo",pendingVehicle.getModel());
-                            startActivity(intent);
-
-                            etInput.setText("");
-                            buttonVIN.setEnabled(true);
-                            pendingVehicle = null;
-                        }
-                    });
-
-                } catch (Exception e) {
-                    String err = e.getMessage();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(IntakeActivity.this, "Save Error: " + err, Toast.LENGTH_LONG).show();
-                            buttonVIN.setEnabled(true);
-                            pendingVehicle = null;
-                        }
-                    });
-                }
+                etInput.setText("");
+                buttonVIN.setEnabled(true);
+                pendingVehicle = null;
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                Toast.makeText(IntakeActivity.this, "Save Error: " + message, Toast.LENGTH_LONG).show();
+                buttonVIN.setEnabled(true);
+                pendingVehicle = null;
+            }
+        });
     }
 
     private void loadParts() {
-        new Thread(new Runnable() {
+        IntakeController.processPartsInfo(this, new IntakeController.PartsCallback() {
             @Override
-            public void run() {
-                try {
-                    PartsController partsController = new PartsController();
-                    fetchedPartsList = partsController.processPartsInfo(IntakeActivity.this);
+            public void onSuccess(List<Parts> parts) {
+                fetchedPartsList = parts;
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (fetchedPartsList != null && !fetchedPartsList.isEmpty()) {
-                                ArrayAdapter<Parts> adapter = new ArrayAdapter<>(
-                                        IntakeActivity.this,
-                                        android.R.layout.simple_list_item_multiple_choice,
-                                        fetchedPartsList
-                                );
-                                listViewParts.setAdapter(adapter);
-                                listViewParts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                            } else {
-                                Toast.makeText(IntakeActivity.this, "No parts found in database.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                } catch (Exception e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(IntakeActivity.this, "Error loading parts: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
+                ArrayAdapter<Parts> adapter = new ArrayAdapter<>(
+                        IntakeActivity.this,
+                        android.R.layout.simple_list_item_multiple_choice,
+                        fetchedPartsList
+                );
+                listViewParts.setAdapter(adapter);
+                listViewParts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             }
-        }).start();
+
+            @Override
+            public void onError(String message) {
+                Toast.makeText(IntakeActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
